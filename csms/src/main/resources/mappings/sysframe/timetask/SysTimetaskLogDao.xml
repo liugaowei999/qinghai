@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.sysframe.timetask.dao.SysTimetaskLogDao">
+    
+	<sql id="sysTimetaskLogColumns">
+		a.id AS "id",
+		a.task_id AS "taskId",
+		a.task_describe AS "taskDescribe",
+		a.inst_id AS "instId",
+		a.begin_date AS "beginDate",
+		a.end_date AS "endDate",
+		a.run_state AS "runState",
+		a.run_remarks AS "runRemarks",
+		a.busi_state AS "busiState",
+		a.busi_remarks AS "busiRemarks"
+	</sql>
+	
+	<sql id="sysTimetaskLogJoins">
+	</sql>
+    
+	<select id="get" resultType="SysTimetaskLog">
+		SELECT 
+			<include refid="sysTimetaskLogColumns"/>
+		FROM sys_timetask_log a
+		<include refid="sysTimetaskLogJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SysTimetaskLog">
+		SELECT 
+			<include refid="sysTimetaskLogColumns"/>
+		FROM sys_timetask_log a
+		<include refid="sysTimetaskLogJoins"/>
+		<where>
+			
+			<if test="taskId != null and taskId != ''">
+				AND a.task_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{taskId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{taskId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{taskId},'%')</if>
+			</if>
+			<if test="taskDescribe != null and taskDescribe != ''">
+				AND a.task_describe LIKE 
+					<if test="dbName == 'oracle'">'%'||#{taskDescribe}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{taskDescribe}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{taskDescribe},'%')</if>
+			</if>
+			<if test="instId != null and instId != ''">
+				AND a.inst_id = #{instId}
+			</if>
+			<if test="runState != null and runState != ''">
+				AND a.run_state = #{runState}
+			</if>
+			<if test="busiState != null and busiState != ''">
+				AND a.busi_state = #{busiState}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SysTimetaskLog">
+		SELECT 
+			<include refid="sysTimetaskLogColumns"/>
+		FROM sys_timetask_log a
+		<include refid="sysTimetaskLogJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sys_timetask_log(
+			id,
+			task_id,
+			task_describe,
+			inst_id,
+			begin_date,
+			end_date,
+			run_state,
+			run_remarks,
+			busi_state,
+			busi_remarks
+		) VALUES (
+			#{id},
+			#{taskId},
+			#{taskDescribe},
+			#{instId},
+			#{beginDate},
+			#{endDate},
+			#{runState},
+			#{runRemarks},
+			#{busiState},
+			#{busiRemarks}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sys_timetask_log SET 	
+			task_describe = #{taskDescribe},
+			inst_id = #{instId},
+			begin_date = #{beginDate},
+			end_date = #{endDate},
+			run_state = #{runState},
+			run_remarks = #{runRemarks},
+			busi_state = #{busiState},
+			busi_remarks = #{busiRemarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM sys_timetask_log
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

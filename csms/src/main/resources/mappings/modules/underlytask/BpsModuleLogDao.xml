@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.underlytask.dao.BpsModuleLogDao">
+    
+	<sql id="bpsModuleLogColumns">
+		a.module_id AS "moduleId",
+		b.module_name AS "moduleName",
+		a.file_name AS "fileName",
+		a.file_type AS "fileType",
+		a.file_size AS "fileSize",
+		a.file_date AS "fileDate",
+		a.begin_deal_time AS "beginDealTime",
+		a.end_deal_time AS "endDealTime",
+		a.total_count AS "totalCount",
+		a.normal_count AS "normalCount",
+		a.error_count AS "errorCount",
+		a.dup_count AS "dupCount",
+		a.nouse_count AS "nouseCount",
+		a.changed_count AS "changedCount",
+		a.merge_count AS "mergeCount",
+		a.split_count AS "splitCount",
+		a.other1 AS "other1",
+		a.other2 AS "other2",
+		a.asn_badblock AS "asnBadblock",
+		a.early_time AS "earlyTime",
+		a.late_time AS "lateTime",
+		b.module_id AS "bpsSysModule.moduleId",
+		b.module_code AS "bpsSysModule.moduleCode",
+		b.module_name AS "bpsSysModule.moduleName",
+		b.program_name AS "bpsSysModule.programName",
+		b.note AS "bpsSysModule.note"
+	</sql>
+	
+	<sql id="bpsModuleLogJoins">
+		join BPS_SYS_MODULE b on b.module_id=a.module_id 
+	</sql>
+	
+	<select id="findList" resultType="BpsModuleLog">
+		SELECT 
+			<include refid="bpsModuleLogColumns"/>
+		FROM ${tableName} a
+		<include refid="bpsModuleLogJoins"/>
+		<where>
+			<if test="bpsSysModule != null">
+				<if test="bpsSysModule.moduleName != null and bpsSysModule.moduleName != ''">
+					AND b.module_name like 
+							<if test="dbName == 'oracle'">'%'||#{bpsSysModule.moduleName}||'%'</if>
+							<if test="dbName == 'mssql'">'%'+#{bpsSysModule.moduleName}+'%'</if>
+							<if test="dbName == 'mysql'">CONCAT('%', #{bpsSysModule.moduleName}, '%')</if>
+				</if>
+			</if>
+			<!-- <if test="fileType != null and fileType != ''">
+				AND a.file_type = #{fileType}
+			</if>
+			<if test="beginDealTime != null and beginDealTime != ''">
+				AND a.begin_deal_time &gt;= #{beginDealTime}
+			</if>
+			<if test="endDealTime != null and endDealTime != ''">
+				AND a.end_deal_time &lt; #{endDealTime}+1
+			</if> -->
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+</mapper>

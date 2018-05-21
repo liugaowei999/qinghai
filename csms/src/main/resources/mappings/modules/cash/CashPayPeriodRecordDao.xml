@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.cash.dao.CashPayPeriodRecordDao">
+    
+	<sql id="cashPayPeriodRecordColumns">
+		a.id AS "periodId",
+		a.provisions_id AS "provisionsId",
+		a.ori_pay_period AS "oriPayPeriod",
+		a.cur_pay_period AS "curPayPeriod",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.modify_status AS "modifyStatus",
+		a.nee_pay_money AS "neePayMoney",
+		a.pay_period_flag AS "payPeriodFlag",
+		a.examine_status AS "examineStatus",
+		a.period_status AS "periodStatus",
+		c.provisions_no AS "provisionsNo"
+	</sql>
+	<sql id="TABLE_SEQUENCE">
+  		CASH_PAY_PERIOD_ID_SEQ.nextval
+  	</sql>
+	<sql id="cashPayPeriodRecordJoins">
+		LEFT JOIN cash_provisions c ON c.id = a.provisions_id
+	</sql>
+    
+	<select id="get" resultType="CashPayPeriodRecord">
+		SELECT 
+			<include refid="cashPayPeriodRecordColumns"/>
+		FROM cash_pay_period_record a
+		<include refid="cashPayPeriodRecordJoins"/>
+		WHERE a.id = #{periodId}
+	</select>
+	
+	<select id="findList" resultType="CashPayPeriodRecord">
+		SELECT 
+			<include refid="cashPayPeriodRecordColumns"/>
+		FROM cash_pay_period_record a
+		<include refid="cashPayPeriodRecordJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="periodId!=null and periodId!=''">
+				and a.id = #{periodId}
+			</if>
+			<if test="provisionsId!=null and provisionsId!=''">
+				and a.provisions_id = #{provisionsId}
+			</if>
+			<if test="examineStatus!=null and examineStatus!=''">
+				and a.examine_status = #{examineStatus}
+			</if>
+			<if test="modifyStatus!=null and modifyStatus!=''">
+				and a.modify_status = #{modifyStatus}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="CashPayPeriodRecord">
+		SELECT 
+			<include refid="cashPayPeriodRecordColumns"/>
+		FROM cash_pay_period_record a
+		<include refid="cashPayPeriodRecordJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		<selectKey keyColumn="ID" keyProperty="periodId" resultType="String" order="BEFORE">
+	  		select <include refid="TABLE_SEQUENCE" /> from dual
+	  	</selectKey>
+		INSERT INTO cash_pay_period_record(
+			id,
+			provisions_id,
+			ori_pay_period,
+			cur_pay_period,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			modify_status,
+			nee_pay_money,
+			pay_period_flag,
+			examine_status,
+			period_status
+		) VALUES (
+			#{periodId},
+			#{provisionsId},
+			#{oriPayPeriod},
+			#{curPayPeriod},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{modifyStatus},
+			#{neePayMoney},
+			#{payPeriodFlag},
+			#{examineStatus},
+			#{periodStatus}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE cash_pay_period_record 
+			<set>
+				<if test="provisionsId!=null and provisionsId!=''" >
+					provisions_id = #{provisionsId},
+				</if>
+				<if test="oriPayPeriod!=null and oriPayPeriod!=''" >
+					ori_pay_period = #{oriPayPeriod},
+				</if>
+				<if test="curPayPeriod!=null and curPayPeriod!=''" >
+					cur_pay_period = #{curPayPeriod},
+				</if>
+				<if test="updateBy.id!=null and updateBy.id!=''" >
+				 	update_by = #{updateBy.id},
+				</if>
+				<if test="updateDate!=null" >
+					update_date = #{updateDate},
+				</if>
+				<if test="remarks!=null and remarks!=''" >
+					remarks = #{remarks},
+				</if>
+				<if test="modifyStatus!=null and modifyStatus!=''" >
+					modify_status = #{modifyStatus},
+				</if>
+				<if test="neePayMoney!=null" >
+					nee_pay_money = #{neePayMoney},
+				</if>
+				<if test="payPeriodFlag!=null and payPeriodFlag!=''" >
+					pay_period_flag = #{payPeriodFlag},
+				</if>
+				<if test="examineStatus!=null and examineStatus!=''" >
+					examine_status = #{examineStatus},
+				</if>
+				<if test="periodStatus!=null and periodStatus!=''" >
+					period_status =  #{periodStatus},
+				</if>
+			</set> 	
+		WHERE id = #{periodId}
+	</update>
+	
+	<update id="delete">
+		UPDATE cash_pay_period_record SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{periodId}
+	</update>
+	
+	<update id="cancelPeriod">
+	    UPDATE cash_pay_period_record SET 
+			period_status =  '1',
+			examine_status = '2',
+			modify_status = '2'
+		WHERE id = #{periodId}
+	</update>
+	
+	<select id="findLastSuccessRecord" resultType="CashPayPeriodRecord">
+		SELECT 
+			<include refid="cashPayPeriodRecordColumns"/>
+		FROM  cash_pay_period_record a
+		<include refid="cashPayPeriodRecordJoins"/>
+		WHERE 
+			a.update_date = 
+				(SELECT MAX(b.update_date) FROM cash_pay_period_record b
+				 WHERE b.provisions_id = #{provisionsId}
+				 AND   b.modify_status = '1') 
+			
+	</select>
+	
+	<select id="getCashProvisionsByUserId" resultType="CashProvisions">
+		SELECT 
+			a.id AS "id",
+			a.provisions_no AS "provisionsNo",
+			a.bankcard_no AS "bankcardNo",
+			a.pay_period AS "payPeriod",
+			a.deposite AS "deposite",
+			a.total_amount AS "totalAmount",
+			a.remaining_sum AS "remainingSum",
+			a.withdraw_deposite AS "withdrawDeposite",
+			a.need_pay AS "needPay",
+			a.user_id AS "userId",
+			a.create_by AS "createBy.id",
+			a.create_date AS "createDate",
+			a.update_by AS "updateBy.id",
+			a.update_date AS "updateDate",
+			a.remarks AS "remarks",
+			a.del_flag AS "delFlag"
+		FROM cash_provisions a
+		WHERE
+			a.user_id = #{userId}
+	</select>
+</mapper>

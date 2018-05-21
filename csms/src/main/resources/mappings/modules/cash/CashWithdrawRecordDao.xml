@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.cash.dao.CashWithdrawRecordDao">
+    
+	<sql id="cashWithdrawRecordColumns">
+		a.id AS "withdrawId",
+		a.provisions_id AS "provisionsId",
+		a.withdraw_deposite AS "withdrawDeposite",
+		a.pre_withdraw_deposite AS "preWithdrawDeposite",
+		a.next_withdraw_deposite AS "nextWithdrawDeposite",
+		a.withdraw_type AS "withdrawType",
+		a.withdraw_state AS "withdrawState",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		c.provisions_no AS "provisionsNo",
+		d.name AS "createName"
+	</sql>
+	<sql id="TABLE_SEQUENCE">
+  		CASH_WITHDRAW_RECORD_ID_SEQ.nextval
+  	</sql>
+	<sql id="cashWithdrawRecordJoins">
+		LEFT JOIN cash_provisions c ON c.id = a.provisions_id
+		LEFT JOIN sys_user d ON d.id = a.create_by 
+	</sql>
+    
+	<select id="get" resultType="CashWithdrawRecord">
+		SELECT 
+			<include refid="cashWithdrawRecordColumns"/>
+		FROM cash_withdraw_record a
+		<include refid="cashWithdrawRecordJoins"/>
+		WHERE a.id = #{withdrawId}
+	</select>
+	
+	<select id="findList" resultType="CashWithdrawRecord">
+		SELECT 
+			<include refid="cashWithdrawRecordColumns"/>
+		FROM cash_withdraw_record a
+		<include refid="cashWithdrawRecordJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="withdrawId!=null and withdrawId!=''">
+				and a.id = #{withdrawId}
+			</if>
+			<if test="provisionsId!=null and provisionsId!=''">
+				and a.provisions_id = #{provisionsId}
+			</if>
+			<if test="withdrawType!=null and withdrawType!=''">
+				and a.withdraw_type = #{withdrawType}
+			</if>
+			<if test="withdrawState!=null and withdrawState!=''">
+				and a.withdraw_state = #{withdrawState}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="CashWithdrawRecord">
+		SELECT 
+			<include refid="cashWithdrawRecordColumns"/>
+		FROM cash_withdraw_record a
+		<include refid="cashWithdrawRecordJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		<selectKey keyColumn="ID" keyProperty="withdrawId" resultType="String" order="BEFORE">
+	  		select <include refid="TABLE_SEQUENCE" /> from dual
+	  	</selectKey>
+		INSERT INTO cash_withdraw_record(
+			id,
+			provisions_id,
+			withdraw_deposite,
+			pre_withdraw_deposite,
+			next_withdraw_deposite,
+			withdraw_type,
+			withdraw_state,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{withdrawId},
+			#{provisionsId},
+			#{withdrawDeposite},
+			#{preWithdrawDeposite},
+			#{nextWithdrawDeposite},
+			#{withdrawType},
+			#{withdrawState},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE cash_withdraw_record SET 	
+			provisions_id = #{provisionsId},
+			withdraw_deposite = #{withdrawDeposite},
+			pre_withdraw_deposite = #{preWithdrawDeposite},
+			next_withdraw_deposite = #{nextWithdrawDeposite},
+			withdraw_type = #{withdrawType},
+			withdraw_state = #{withdrawState},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{withdrawId}
+	</update>
+	<update id="updateWithdrawState">
+		UPDATE cash_withdraw_record SET 	
+			withdraw_state = #{withdrawState},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{withdrawId}
+	</update>
+	<update id="updateCashProvisions">
+	    UPDATE cash_provisions SET 	
+			withdraw_deposite = #{withdrawDeposite},
+			total_amount = #{totalAmount},
+			remaining_sum = #{remainingSum},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="delete">
+		UPDATE cash_withdraw_record SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{withdrawId}
+	</update>
+	
+</mapper>

@@ -1,0 +1,133 @@
+*{
+	padding: 0;
+	margin: 0;
+	font-family: "微软雅黑","Microsoft YaHei"
+}
+.clearfix:before,
+.clearfix:after {
+    content: " ";
+    display: table;
+}
+.clearfix:after {
+    clear: both;
+}
+.clearfix{
+	zoom: 1;
+}
+.banner{
+	min-width:940px;
+	overflow: hidden;
+	border-top: 1px solid #ebebeb;
+}
+.banner .banner-inner {
+	width: 940px;
+	margin: 0 auto;
+}
+.banner .banner-inner .left {
+	width: 150px;
+	border-right: 1px solid #55aadc;
+	background-color: #f3f3f3;
+	float: left;
+}
+.banner .banner-inner .left .meau-tit{
+	font-size: 18px;
+	/*font-weight: bold;*/
+	color: #808080;
+	width: 90px;
+	line-height: 42px;
+	text-align: center;
+	border-bottom: 2px solid #48a2d7;
+	margin: 8px 0px 0px 10px;
+	float: left;
+}
+.banner .banner-inner .left .meau{
+	clear: both;
+	padding-left: 11px;
+}
+.banner .banner-inner .left .meau li {
+	list-style: none;
+	margin-top: 18px;
+	cursor: pointer;
+	font-size: 14px;
+	color: #666666;
+	width: 188px;
+	height: 39px;
+	line-height: 39px;
+	padding-left: 16px;
+}
+.banner .banner-inner .left .meau li.show {
+	background-color: #fff;
+	width: 125px;
+	height: 39px;
+	line-height: 39px;
+	color: #0080cb;
+	font-weight: bold;
+}
+.banner .banner-inner .left .content-1 .content.notice {
+	display: none;
+}
+.banner .banner-inner .right {
+	width: 780px;
+/* 	height: 529px; */
+	float: right;
+}
+.banner .banner-inner .right .nav-list {
+	height: 52px;
+	line-height: 52px;
+	border-bottom:1px solid #d9d9d9;
+}
+.banner .banner-inner .right .nav-list li {
+	list-style-type: none;
+	float: left;
+	color: #808080;
+	font-size: 12px;
+}
+.banner .banner-inner .right .nav-list li .nextIcon {
+	padding: 0 8px 0 8px;
+}
+.banner .banner-inner .right .right-list {
+	margin-top: 6px;
+}
+.banner .banner-inner .right .right-list a:hover,
+.banner .banner-inner .right .right-list a:active {
+	color:#589ed6;
+}
+.banner .banner-inner .right .right-list .search-right {
+	width: 275px;
+	line-height: 45px;
+	position: relative;
+	margin-bottom:10px;
+}
+.banner .banner-inner .right .right-list .search-right .searchKey {
+	font-size: 14px;
+	padding-right: 10px;
+}
+.banner .banner-inner .right .right-list .search-right .searchBox {
+	width: 172px;
+	height: 24px;
+	border: 1px solid #ccc；
+}
+.banner .banner-inner .right .right-list .search-right img {
+	position: absolute;
+	right: 11px;
+	top: 18px;
+}
+input[type="text"] {
+	padding:0 0 !important;
+	margin-bottom:0px !important;
+}
+.banner .banner-inner .right .right-list .list-item{
+	list-style: none;
+	background: url("../images/point.png") no-repeat;
+	background-size: 6px 6px;
+	background-position: 5px 10px;
+	padding-left: 26px;
+	font-size: 14px;
+	color: #666;
+	line-height: 25px;
+}
+.banner .banner-inner .right .right-list .time {
+	font-size: 14px;
+	color: #999999;
+	float: right;
+}

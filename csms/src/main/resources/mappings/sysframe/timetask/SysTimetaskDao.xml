@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.sysframe.timetask.dao.SysTimetaskDao">
+    
+	<sql id="sysTimetaskColumns">
+		a.id AS "id",
+		a.task_id AS "taskId",
+		a.task_describe AS "taskDescribe",
+		a.impl_class AS "implClass",
+		a.cron_expression AS "cronExpression",
+		a.inst_id AS "instId",
+		a.is_effect AS "isEffect",
+		a.is_start AS "isStart",
+		a.create_name AS "createBy.name",
+		a.create_date AS "createDate",
+		a.update_name AS "updateBy.name",
+		a.update_date AS "updateDate",
+		a.create_by AS "createBy.id",
+		a.update_by AS "updateBy.id"
+	</sql>
+	
+	<sql id="sysTimetaskJoins">
+	</sql>
+    
+	<select id="get" resultType="SysTimetask">
+		SELECT 
+			<include refid="sysTimetaskColumns"/>
+		FROM sys_timetask a
+		<include refid="sysTimetaskJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SysTimetask">
+		SELECT 
+			<include refid="sysTimetaskColumns"/>
+		FROM sys_timetask a
+		<include refid="sysTimetaskJoins"/>
+		<where>
+			
+			<if test="taskId != null and taskId != ''">
+				AND a.task_id = #{taskId}
+			</if>
+			<if test="taskDescribe != null and taskDescribe != ''">
+				AND a.task_describe LIKE 
+					<if test="dbName == 'oracle'">'%'||#{taskDescribe}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{taskDescribe}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{taskDescribe},'%')</if>
+			</if>
+			<if test="instId != null and instId != ''">
+				AND a.inst_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{instId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{instId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{instId},'%')</if>
+			</if>
+			<if test="isEffect != null and isEffect != ''">
+				AND a.is_effect = #{isEffect}
+			</if>
+			<if test="isStart != null and isStart != ''">
+				AND a.is_start = #{isStart}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SysTimetask">
+		SELECT 
+			<include refid="sysTimetaskColumns"/>
+		FROM sys_timetask a
+		<include refid="sysTimetaskJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sys_timetask(
+			id,
+			task_id,
+			task_describe,
+			impl_class,
+			cron_expression,
+			inst_id,
+			is_effect,
+			is_start,
+			create_name,
+			create_date,
+			update_name,
+			update_date,
+			create_by,
+			update_by
+		) VALUES (
+			#{id},
+			#{taskId},
+			#{taskDescribe},
+			#{implClass},
+			#{cronExpression},
+			#{instId},
+			#{isEffect},
+			#{isStart},
+			#{createBy.name},
+			#{createDate},
+			#{updateBy.name},
+			#{updateDate},
+			#{createBy.id},
+			#{updateBy.id}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sys_timetask SET 	
+			task_id = #{taskId},
+			task_describe = #{taskDescribe},
+			impl_class = #{implClass},
+			cron_expression = #{cronExpression},
+			inst_id = #{instId},
+			is_effect = #{isEffect},
+			is_start = #{isStart}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM sys_timetask
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

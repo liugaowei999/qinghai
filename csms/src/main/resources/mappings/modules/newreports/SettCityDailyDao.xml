@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.newreports.dao.SettCityDailyDao">
+    
+	<sql id="DISTINCTCityDailyColumns">
+		distinct 
+		a.sett_object AS "settObject",
+		a.sett_role AS "settRole"
+	</sql>
+	
+	<sql id="settCityDailyColumns">
+		a.sett_date AS "settDate",
+		a.sett_object AS "settObject",
+		a.sett_role AS "settRole",
+		a.trade_charge/100 AS "tradeCharge",
+		a.service_charge/100 AS "serviceCharge",
+		a.issue_charge/100 AS "issueCharge",
+		a.bill_charge/100 AS "billCharge",
+		a.center_charge/100 AS "centerCharge",
+		a.times AS "times",
+		a.sett_charge/100 AS "settCharge"
+	</sql>
+	
+	<sql id="settCityDailyJoins">
+		LEFT JOIN sys_office o ON o.name = a.sett_object  and o.del_flag='0' and o.useable='1'
+	</sql>
+    
+	<select id="get" resultType="SettCityDaily">
+		SELECT 
+			<include refid="settCityDailyColumns"/>
+		FROM sett_city_daily a
+		<include refid="settCityDailyJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SettCityDaily">
+		SELECT 
+			<include refid="settCityDailyColumns"/>
+		FROM sett_city_daily a
+		<include refid="settCityDailyJoins"/>
+		<where>
+			<if test="beginSettDate != null and endSettDate != null and beginSettDate != '' and endSettDate != ''">
+				AND a.sett_date BETWEEN #{beginSettDate} AND #{endSettDate}
+			</if>
+			<if test="settObject != null and settObject != ''">
+				AND a.sett_object = #{settObject}
+			</if>
+			<if test="settRole != null and settRole != ''">
+				AND a.sett_role = #{settRole}
+			</if>
+		</where>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy},a.sett_date desc
+			</when>
+			<otherwise>
+				ORDER BY a.sett_date desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="issueCityViewChart" resultType="java.util.HashMap">
+		select  ''||a.sett_role as "settDirection",
+		        a.sett_role as "settDirectionName",
+		       sum(a.trade_charge) as "tradeCharge",
+		       sum(a.service_charge) as "serviceFee",
+		       sum(a.issue_charge) as "issueCharge",
+		        sum(a.bill_charge) as "billCharge",
+		       sum(a.center_charge) as "centerCharge",
+		       sum(a.sett_charge) as "settCharge",
+		       sum(a.times) as "times"
+		  from sett_city_daily a 
+		  <include refid="settCityDailyJoins"/>
+		 <where>
+		     <if test="settDate != null and settDate != ''">
+		        AND substr(a.sett_date, 0, 6) = #{settDate}
+		     </if>
+		     <if test="settObject != null and settObject != ''">
+		        AND sett_Object = #{settObject}
+		     </if>
+		     and a.sett_role = '发卡' 
+		 </where>
+		 <!-- 数据范围过滤 -->
+		 ${sqlMap.dsf}   	   
+		 group by a.sett_role
+		
+	</select>
+	
+	<select id="billCityViewChart" resultType="java.util.HashMap">
+		select  ''||a.sett_role as "settDirection",
+		        <!--a.sett_role as "settDirectionName",-->
+		       sum(a.trade_charge) as "tradeCharge",
+		       sum(a.service_charge) as "serviceFee",
+		       sum(a.issue_charge) as "issueCharge",
+		        sum(a.bill_charge) as "billCharge",
+		       sum(a.center_charge) as "centerCharge",
+		       sum(a.sett_charge) as "settCharge",
+		       sum(a.times) as "times"
+		  from sett_city_daily a 
+		  <include refid="settCityDailyJoins"/>
+		 <where>
+		     <if test="settDate != null and settDate != ''">
+		        AND substr(a.sett_date, 0, 6) = #{settDate}
+		     </if>
+		     <if test="settObject != null and settObject != ''">
+		        AND sett_Object = #{settObject}
+		     </if>
+		     and a.sett_role = '收单' 
+		 </where>
+		 <!-- 数据范围过滤 -->
+		 ${sqlMap.dsf}   	   
+		 group by a.sett_role
+		
+	</select>
+	
+	
+	<select id="issueObjectMonthLineChart" resultType="java.util.HashMap">
+		select  a.sett_date as "settDate",
+		        sum(a.trade_charge) as "tradeCharge",
+		        sum(a.service_charge) as "serviceCharge",
+		        sum(a.issue_charge) as "issueCharge",
+		         sum(a.bill_charge) as "billCharge",
+		        sum(a.center_charge) as "centerCharge",
+		        sum(a.sett_charge) as "settCharge",
+		        sum(a.times) as "times"
+		  from sett_city_daily a
+		  <include refid="settCityDailyJoins"/>
+		 <where>
+		     <if test="settDate != null and settDate != ''">
+		        AND substr(a.sett_date, 0, 6) = #{settDate}
+		     </if>
+		     <if test="settObject != null and settObject != ''">
+		        AND sett_Object = #{settObject}
+		     </if>
+		     and a.sett_role = '发卡' 
+		 </where>
+		 <!-- 数据范围过滤 -->
+		 ${sqlMap.dsf} 
+		 group by a.sett_date
+		 order by a.sett_date
+	</select>
+	
+	<select id="billCodeProvLineChart" resultType="java.util.HashMap">
+		select  a.sett_date as "settDate",
+		        sum(a.trade_charge) as "tradeCharge",
+		        sum(a.service_charge) as "serviceCharge",
+		        sum(a.issue_charge) as "issueCharge",
+		         sum(a.bill_charge) as "billCharge",
+		        sum(a.center_charge) as "centerCharge",
+		        sum(a.sett_charge) as "settCharge",
+		        sum(a.times) as "times"
+		  from sett_city_daily a
+		  <include refid="settCityDailyJoins"/>
+		 <where>
+		     <if test="settDate != null and settDate != ''">
+		        AND substr(a.sett_date, 0, 6) = #{settDate}
+		     </if>
+		     <if test="settObject != null and settObject != ''">
+		        AND sett_Object = #{settObject}
+		     </if>
+		     and a.sett_role = '收单' 
+		 </where>
+		 <!-- 数据范围过滤 -->
+		 ${sqlMap.dsf} 
+		 group by a.sett_date
+		 order by a.sett_date
+	</select>
+	
+	
+	<select id="findAllList" resultType="SettCityDaily">
+		SELECT 
+			<include refid="DISTINCTCityDailyColumns"/>
+		FROM sett_city_daily a
+		<include refid="settCityDailyJoins"/>
+		<where>
+			1=1	
+		</where>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sett_city_daily(
+			sett_date,
+			sett_object,
+			sett_role,
+			trade_charge,
+			service_charge,
+			issue_charge,
+			bill_charge,
+			center_charge,
+			times,
+			sett_charge
+		) VALUES (
+			#{settDate},
+			#{settObject},
+			#{settRole},
+			#{tradeCharge},
+			#{serviceCharge},
+			#{issueCharge},
+			#{billCharge},
+			#{centerCharge},
+			#{times},
+			#{settCharge}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sett_city_daily SET 	
+			sett_date = #{settDate},
+			sett_object = #{settObject},
+			sett_role = #{settRole},
+			trade_charge = #{tradeCharge},
+			service_charge = #{serviceCharge},
+			issue_charge = #{issueCharge},
+			bill_charge = #{billCharge},
+			center_charge = #{centerCharge},
+			times = #{times},
+			sett_charge = #{settCharge}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM sett_city_daily
+		WHERE id = #{id}
+	</update>
+
+	<!-- 新增汇总 -->
+
+	<select id="settCityDailySum" resultType="SettCityDaily">
+	select	sum(a.trade_charge)/100 as "tradeCharge",
+	sum(a.service_charge)/100 as "serviceCharge",
+	sum(a.issue_charge)/100 as "issueCharge",
+	sum(a.bill_charge)/100 as "billCharge",
+	sum(a.center_charge)/100 as "centerCharge",
+	sum(a.sett_charge)/100 as "settCharge",
+	sum(a.times) as "times"
+	from sett_city_daily a
+	<include refid="settCityDailyJoins"/>
+	<where>
+		<if test="beginSettDate != null and endSettDate != null and beginSettDate != '' and endSettDate != ''">
+			AND a.sett_date BETWEEN #{beginSettDate} AND #{endSettDate}
+		</if>
+		<if test="settObject != null and settObject != ''">
+			AND a.sett_object = #{settObject}
+		</if>
+		<if test="settRole != null and settRole != ''">
+			AND a.sett_role = #{settRole}
+		</if>
+	</where>
+	<!-- 数据范围过滤 -->
+	${sqlMap.dsf}
+	</select>
+
+</mapper>

@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.newreports.dao.SettProvDailyDao">
+    
+	<sql id="settProvDailyColumns">
+		a.sett_date AS "settDate",
+		a.sett_object AS "settObject",
+		a.sett_role AS "settRole",
+		a.trade_charge/100 AS "tradeCharge",
+		a.service_charge/100 AS "serviceCharge",
+		a.issue_charge/100 AS "issueCharge",
+		a.bill_charge/100 AS "billCharge",
+		a.center_charge/100 AS "centerCharge",
+		a.times AS "times",
+		a.sett_charge/100 AS "settCharge"
+	</sql>
+	
+	<sql id="settProvDailySumColumns">
+		a.sett_date AS "settDate",
+		a.sett_object AS "settObject",
+		a.sett_role AS "settRole",
+		sum(a.trade_charge)/100 AS "tradeCharge",
+		sum(a.service_charge)/100 AS "serviceCharge",
+		sum(a.issue_charge)/100 AS "issueCharge",
+		sum(a.bill_charge)/100 AS "billCharge",
+		sum(a.center_charge)/100 AS "centerCharge",
+		sum(a.times) AS "times",
+		sum(a.sett_charge)/100 AS "settCharge"
+	</sql>
+	
+	<sql id="settProvDailyJoins">
+	</sql>
+    
+	<select id="get" resultType="SettProvDaily">
+		SELECT 
+			<include refid="settProvDailyColumns"/>
+		FROM sett_prov_daily a
+		<include refid="settProvDailyJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SettProvDaily">
+		SELECT 
+			<include refid="settProvDailySumColumns"/>
+		FROM sett_prov_daily a
+		<include refid="settProvDailyJoins"/>
+		<where>
+			
+			<if test="beginSettDate != null and endSettDate != null and beginSettDate != '' and endSettDate != ''">
+				AND a.sett_date BETWEEN #{beginSettDate} AND #{endSettDate}
+			</if>
+			<if test="settObject != null and settObject != ''">
+				AND a.sett_object = #{settObject}
+			</if>
+			<if test="settRole != null and settRole != ''">
+				AND a.sett_role = #{settRole}
+			</if>
+			group by a.sett_date, a.sett_object, a.sett_role
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy},a.sett_date desc
+			</when>
+			<otherwise>
+				ORDER BY a.sett_date desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SettProvDaily">
+		SELECT 
+			<include refid="settProvDailyColumns"/>
+		FROM sett_prov_daily a
+		<include refid="settProvDailyJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy},a.sett_date desc
+			</when>
+			<otherwise>
+				ORDER BY a.sett_date desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="billCodeSumProvViewChart" resultType="java.util.HashMap">
+		select  ''||a.sett_role as "settRole",
+		        sum(a.trade_charge)/100 as "tradeCharge",
+		        sum(a.service_charge)/100 as "serviceCharge",
+		        sum(a.issue_charge)/100 as "issueCharge",
+		        sum(a.bill_charge)/100 as "billCharge",
+		        sum(a.center_charge)/100 as "centerCharge",
+		        sum(abs(a.sett_charge))/100 as "settCharge",
+		        sum(a.times) as "times"
+		  from sett_prov_daily a 
+		 where substr(a.sett_date,0,6) = #{settDate}  
+		 group by a.sett_role	
+	</select>
+	
+	<select id="issueCodeProvViewChart" resultType="java.util.HashMap">
+		select  a.sett_role as "settRole",
+		        sum(a.trade_charge)/100 as "tradeCharge",
+		        sum(a.service_charge)/100 as "serviceCharge",
+		        sum(a.issue_charge)/100 as "issueCharge",
+		         sum(a.bill_charge)/100 as "billCharge",
+		        sum(a.center_charge)/100 as "centerCharge",
+		        sum(abs(a.sett_charge))/100 as "settCharge"
+		  from sett_prov_daily a 
+		 where  substr(a.sett_date,0,6) = #{settDate}
+		 group by a.sett_role
+	</select>	
+		
+	<insert id="insert">
+		INSERT INTO sett_prov_daily(
+			sett_date,
+			sett_object,
+			sett_role,
+			trade_charge,
+			service_charge,
+			issue_charge,
+			bill_charge,
+			center_charge,
+			times,
+			sett_charge
+		) VALUES (
+			#{settDate},
+			#{settObject},
+			#{settRole},
+			#{tradeCharge},
+			#{serviceCharge},
+			#{issueCharge},
+			#{billCharge},
+			#{centerCharge},
+			#{times},
+			#{settCharge}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sett_prov_daily SET 	
+			sett_date = #{settDate},
+			sett_object = #{settObject},
+			sett_role = #{settRole},
+			trade_charge = #{tradeCharge},
+			service_charge = #{serviceCharge},
+			issue_charge = #{issueCharge},
+			bill_charge = #{billCharge},
+			center_charge = #{centerCharge},
+			times = #{times},
+			sett_charge = #{settCharge}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM sett_prov_daily
+		WHERE id = #{id}
+	</update>
+
+	<!-- add sum -->
+	<select id="settProvStatDetailSum" resultType="SettProvDaily">
+		select
+		sum(a.trade_charge)/100 AS "tradeCharge",
+		sum(a.service_charge)/100 AS "serviceCharge",
+		sum(a.issue_charge)/100 AS "issueCharge",
+		sum(a.bill_charge)/100 AS "billCharge",
+		sum(a.center_charge)/100 AS "centerCharge",
+		sum(a.times) AS "times",
+		sum(a.sett_charge)/100 AS "settCharge"
+		from sett_prov_daily a
+		<include refid="settProvDailyJoins"/>
+		<where>
+
+			<if test="beginSettDate != null and endSettDate != null and beginSettDate != '' and endSettDate != ''">
+				AND a.sett_date BETWEEN #{beginSettDate} AND #{endSettDate}
+			</if>
+			<if test="settObject != null and settObject != ''">
+				AND a.sett_object = #{settObject}
+			</if>
+			<if test="settRole != null and settRole != ''">
+				AND a.sett_role = #{settRole}
+			</if>
+		</where>
+
+		<!-- 数据范围过滤 -->
+<!-- 		${sqlMap.dsf}
+-->
+	</select>
+</mapper>

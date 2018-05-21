@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.settlementfront.dao.ErBillDetailDao">
+    <resultMap id="BaseResultMap" type="com.cttic.csms.modules.settlementfront.entity.ErBillDetail" >
+    </resultMap>
+	<sql id="erBillDetailColumns">
+		a.dr_type AS "drType",
+		a.sett_date AS "settDate",
+		a.trade_code AS "tradeCode",
+		a.trade_charge AS "tradeCharge",
+		a.trans_time AS "transTime",
+		a.trace_no AS "traceNo",
+		a.recv_org_id AS "recvOrgId",
+		a.send_org_id AS "sendOrgId",
+		a.seller_type AS "sellerType",
+		a.terminal_id AS "terminalId",
+		a.acquirer_id AS "acquirerId",
+		a.acquirer_addr AS "acquirerAddr",
+		a.bill_org_code AS "billOrgCode",
+		a.issue_org_code AS "issueOrgCode",
+		a.card_no AS "cardNo",
+		a.trade_date AS "tradeDate",
+		 substr(a.trade_time,1,2)||':'||substr(a.trade_time,3,2)||':'||substr(a.trade_time,5,2) AS "tradeTime",
+		a.roam_type AS "roamType",
+		a.service_fee AS "serviceFee",
+		a.issue_fee AS "issueFee",
+		a.bill_fee AS "billFee",
+		a.sys_error_code AS "sysErrorCode",
+		a.sys_error_msg AS "sysErrorMsg",
+		a.deal_time AS "dealTime",
+		a.indb_time AS "indbTime",
+		a.other_fee AS "otherFee",
+		a.beforetrade_charge_dec AS "beforetradeChargeDec"
+	</sql>
+	
+	<sql id="billDetailColumns">
+		drType AS "drType",
+		settDate AS "settDate",
+		tradeCode AS "tradeCode",
+		tradeCharge AS "tradeCharge",
+		recvOrgId AS "recvOrgId",
+		sendOrgId AS "sendOrgId",
+		sellerType AS "sellerType",
+		traceNo AS "traceNo",
+		issueOrgCode AS "issueOrgCode",
+		cardNo AS "cardNo",
+		tradeDate AS "tradeDate",
+		tradeTime AS "tradeTime",
+		roamType AS "roamType",
+		sysErrorCode AS "sysErrorCode",
+		sysErrorMsg AS "sysErrorMsg",
+		dealTime AS "dealTime",
+		indbTime AS "indbTime",
+		beforetradeChargeDec AS "beforetradeChargeDec"
+	</sql>
+	
+	<sql id="drBillDetailColumns">
+		dr_type AS "drType",
+		sett_date AS "settDate",
+		trade_code AS "tradeCode",
+		trade_charge AS "tradeCharge",
+		recv_org_id AS "recvOrgId",
+		send_org_id AS "sendOrgId",
+		seller_type AS "sellerType",
+		retriev_no AS "traceNo",
+		issue_org_code AS "issueOrgCode",
+		card_no AS "cardNo",
+		trade_date AS "tradeDate",
+		substr(trade_time,1,2)||':'||substr(trade_time,3,2)||':'||substr(trade_time,5,2) AS "tradeTime",
+		roam_type AS "roamType",
+		sys_error_code AS "sysErrorCode",
+		sys_error_msg AS "sysErrorMsg",
+		deal_time AS "dealTime",
+		to_date(nvl(to_char(indb_time, 'yyyymmdd'),sett_date),'yyyymmdd') AS "indbTime",
+		to_char(beforetrade_charge_dec) AS "beforetradeChargeDec",
+		o.name AS "sendOrgName"
+	</sql>
+	
+	<sql id="fbBillDetailColumns">
+		dr_type AS "drType",
+		sett_date AS "settDate",
+		trade_type AS "tradeCode",
+		trade_charge AS "tradeCharge",
+		bill_org_id AS "recvOrgId",
+		bill_org_id AS "sendOrgId",
+		mcc AS "sellerType",
+		retriev_no AS "traceNo",
+		issue_company_code AS "issueOrgCode",
+		card_no AS "cardNo",
+		trade_date AS "tradeDate",
+		substr(trade_time,1,2)||':'||substr(trade_time,3,2)||':'||substr(trade_time,5,2) AS "tradeTime",
+		'2' AS "roamType",
+		err_code AS "sysErrorCode",
+		err_info AS "sysErrorMsg",
+		deal_time AS "dealTime",
+		to_date(nvl(indb_time,sett_date||'000000'),'yyyymmddhh24miss') AS "indbTime",
+		to_char(beforetrade_charge) AS "beforetradeChargeDec",
+		o.name AS "sendOrgName"
+	</sql>
+	
+	<sql id="drBillDetailJoins">
+		LEFT JOIN sys_office o ON o.id = substr(a.send_org_id,2,7)  and o.del_flag='0' and o.useable='1'
+	</sql>
+	
+	<sql id="fbBillDetailJoins">
+		LEFT JOIN sys_office o ON o.id = substr(b.bill_org_id,2,7)  and o.del_flag='0' and o.useable='1'
+	</sql>
+	
+	<select id="findList" resultType="ErBillDetail">
+		SELECT 
+			<include refid="drBillDetailColumns"/>
+		FROM ${drTableName} a
+		
+		<include refid="drBillDetailJoins"/>
+		<where>
+			sys_error_code != '000000' 
+			<if test="drType != null and drType != ''">
+				AND dr_type like 
+					<if test="dbName == 'oracle'">'%'||#{drType}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{drType}+'%'</if>
+					<if test="dbName == 'mysql'">CONCAT('%', #{drType}, '%')</if>
+			</if>
+			<if test="cardNo != null and cardNo != ''">
+				AND card_no like 
+					<if test="dbName == 'oracle'">'%'||#{cardNo}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{cardNo}+'%'</if>
+					<if test="dbName == 'mysql'">CONCAT('%', #{cardNo}, '%')</if>
+			</if>
+			<if test="billOrgCode != null and billOrgCode != ''">
+				AND substr(send_org_id,2,7)= #{billOrgCode}
+			</if>
+			<if test="issueOrgCode != null and issueOrgCode != ''">
+				AND substr(issue_org_code,2,7)= #{issueOrgCode}
+			</if>
+		</where>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf} 
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				
+			</otherwise>
+		</choose>
+		
+		union all
+		SELECT 
+			<include refid="fbBillDetailColumns"/>
+		FROM ${fbTableName} b
+		<include refid="fbBillDetailJoins"/>
+		<where>
+			err_code != '000000' 
+			<if test="drType != null and drType != ''">
+				AND dr_type like 
+					<if test="dbName == 'oracle'">'%'||#{drType}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{drType}+'%'</if>
+					<if test="dbName == 'mysql'">CONCAT('%', #{drType}, '%')</if>
+			</if>
+			<if test="cardNo != null and cardNo != ''">
+				AND card_no like 
+					<if test="dbName == 'oracle'">'%'||#{cardNo}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{cardNo}+'%'</if>
+					<if test="dbName == 'mysql'">CONCAT('%', #{cardNo}, '%')</if>
+			</if>
+			<if test="billOrgCode != null and billOrgCode != ''">
+				AND substr(bill_org_id,2,7)= #{billOrgCode}
+			</if>
+			<if test="issueOrgCode != null and issueOrgCode != ''">
+				AND substr(issue_company_code,2,7)= #{issueOrgCode}
+			</if>
+		</where>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf} 
+		
+		<!-- 排序， 按字段的序列号进行排序， 11,12 为trade_date, trade_time -->
+		order by 11, 12
+		
+	</select>
+	
+	<!-- <select id="findAllList" resultType="ErBillDetail">
+		SELECT 
+			<include refid="erBillDetailColumns"/>
+		FROM er_bill_detail_201612 a
+		<include refid="erBillDetailJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO er_bill_detail_201612(
+			dr_type,
+			file_type,
+			send_org_code,
+			send_date,
+			sett_date,
+			file_name,
+			trade_code,
+			block_mark,
+			main_account_id,
+			trade_charge,
+			currency_code,
+			trans_time,
+			trace_no,
+			response_code,
+			grant_date,
+			retriev_no,
+			recv_org_id,
+			send_org_id,
+			seller_type,
+			terminal_id,
+			acquirer_id,
+			acquirer_addr,
+			ori_trade_info,
+			message_code,
+			info_code,
+			sett_org_no,
+			bill_org_code,
+			issue_org_code,
+			sett_notice,
+			trade_channel,
+			trade_sign,
+			settle_stand,
+			condition_code,
+			own_charge,
+			trade_area_id,
+			etc_flag,
+			special_charge_id,
+			special_charge_level,
+			trade_mode,
+			card_no,
+			trade_charge1,
+			trade_type,
+			terminal_num,
+			terminal_trade_no,
+			trade_date,
+			trade_time,
+			tac_code,
+			key_version,
+			key_index,
+			offline_trade_no,
+			trade_balance,
+			issue_org_id,
+			random_num,
+			cardholder_name,
+			certificates_type,
+			certificates_num,
+			cardholder_type,
+			recv_org_code,
+			recv_org_no,
+			recv_date,
+			sett_org_no1,
+			discount_type,
+			beforetrade_charge,
+			receivable_charge,
+			trade_state,
+			algorithm_flag,
+			card_org_id,
+			tlv_data,
+			actual_issue_org_code,
+			roam_type,
+			rate_id,
+			service_fee,
+			issue_fee,
+			bill_fee,
+			sys_error_code,
+			sys_error_msg,
+			deal_time,
+			indb_time,
+			other_fee,
+			beforetrade_charge_dec,
+			balance_type,
+			test_flag
+		) VALUES (
+			#{drType},
+			#{fileType},
+			#{sendOrgCode},
+			#{sendDate},
+			#{settDate},
+			#{fileName},
+			#{tradeCode},
+			#{blockMark},
+			#{mainAccountId},
+			#{tradeCharge},
+			#{currencyCode},
+			#{transTime},
+			#{traceNo},
+			#{responseCode},
+			#{grantDate},
+			#{retrievNo},
+			#{recvOrgId},
+			#{sendOrgId},
+			#{sellerType},
+			#{terminalId},
+			#{acquirerId},
+			#{acquirerAddr},
+			#{oriTradeInfo},
+			#{messageCode},
+			#{infoCode},
+			#{settOrgNo},
+			#{billOrgCode},
+			#{issueOrgCode},
+			#{settNotice},
+			#{tradeChannel},
+			#{tradeSign},
+			#{settleStand},
+			#{conditionCode},
+			#{ownCharge},
+			#{tradeAreaId},
+			#{etcFlag},
+			#{specialChargeId},
+			#{specialChargeLevel},
+			#{tradeMode},
+			#{cardNo},
+			#{tradeCharge1},
+			#{tradeType},
+			#{terminalNum},
+			#{terminalTradeNo},
+			#{tradeDate},
+			#{tradeTime},
+			#{tacCode},
+			#{keyVersion},
+			#{keyIndex},
+			#{offlineTradeNo},
+			#{tradeBalance},
+			#{issueOrgId},
+			#{randomNum},
+			#{cardholderName},
+			#{certificatesType},
+			#{certificatesNum},
+			#{cardholderType},
+			#{recvOrgCode},
+			#{recvOrgNo},
+			#{recvDate},
+			#{settOrgNo1},
+			#{discountType},
+			#{beforetradeCharge},
+			#{receivableCharge},
+			#{tradeState},
+			#{algorithmFlag},
+			#{cardOrgId},
+			#{tlvData},
+			#{actualIssueOrgCode},
+			#{roamType},
+			#{rateId},
+			#{serviceFee},
+			#{issueFee},
+			#{billFee},
+			#{sysErrorCode},
+			#{sysErrorMsg},
+			#{dealTime},
+			#{indbTime},
+			#{otherFee},
+			#{beforetradeChargeDec},
+			#{balanceType},
+			#{testFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE er_bill_detail_201612 SET 	
+			dr_type = #{drType},
+			file_type = #{fileType},
+			send_org_code = #{sendOrgCode},
+			send_date = #{sendDate},
+			sett_date = #{settDate},
+			file_name = #{fileName},
+			trade_code = #{tradeCode},
+			block_mark = #{blockMark},
+			main_account_id = #{mainAccountId},
+			trade_charge = #{tradeCharge},
+			currency_code = #{currencyCode},
+			trans_time = #{transTime},
+			trace_no = #{traceNo},
+			response_code = #{responseCode},
+			grant_date = #{grantDate},
+			retriev_no = #{retrievNo},
+			recv_org_id = #{recvOrgId},
+			send_org_id = #{sendOrgId},
+			seller_type = #{sellerType},
+			terminal_id = #{terminalId},
+			acquirer_id = #{acquirerId},
+			acquirer_addr = #{acquirerAddr},
+			ori_trade_info = #{oriTradeInfo},
+			message_code = #{messageCode},
+			info_code = #{infoCode},
+			sett_org_no = #{settOrgNo},
+			bill_org_code = #{billOrgCode},
+			issue_org_code = #{issueOrgCode},
+			sett_notice = #{settNotice},
+			trade_channel = #{tradeChannel},
+			trade_sign = #{tradeSign},
+			settle_stand = #{settleStand},
+			condition_code = #{conditionCode},
+			own_charge = #{ownCharge},
+			trade_area_id = #{tradeAreaId},
+			etc_flag = #{etcFlag},
+			special_charge_id = #{specialChargeId},
+			special_charge_level = #{specialChargeLevel},
+			trade_mode = #{tradeMode},
+			card_no = #{cardNo},
+			trade_charge1 = #{tradeCharge1},
+			trade_type = #{tradeType},
+			terminal_num = #{terminalNum},
+			terminal_trade_no = #{terminalTradeNo},
+			trade_date = #{tradeDate},
+			trade_time = #{tradeTime},
+			tac_code = #{tacCode},
+			key_version = #{keyVersion},
+			key_index = #{keyIndex},
+			offline_trade_no = #{offlineTradeNo},
+			trade_balance = #{tradeBalance},
+			issue_org_id = #{issueOrgId},
+			random_num = #{randomNum},
+			cardholder_name = #{cardholderName},
+			certificates_type = #{certificatesType},
+			certificates_num = #{certificatesNum},
+			cardholder_type = #{cardholderType},
+			recv_org_code = #{recvOrgCode},
+			recv_org_no = #{recvOrgNo},
+			recv_date = #{recvDate},
+			sett_org_no1 = #{settOrgNo1},
+			discount_type = #{discountType},
+			beforetrade_charge = #{beforetradeCharge},
+			receivable_charge = #{receivableCharge},
+			trade_state = #{tradeState},
+			algorithm_flag = #{algorithmFlag},
+			card_org_id = #{cardOrgId},
+			tlv_data = #{tlvData},
+			actual_issue_org_code = #{actualIssueOrgCode},
+			roam_type = #{roamType},
+			rate_id = #{rateId},
+			service_fee = #{serviceFee},
+			issue_fee = #{issueFee},
+			bill_fee = #{billFee},
+			sys_error_code = #{sysErrorCode},
+			sys_error_msg = #{sysErrorMsg},
+			deal_time = #{dealTime},
+			indb_time = #{indbTime},
+			other_fee = #{otherFee},
+			beforetrade_charge_dec = #{beforetradeChargeDec},
+			balance_type = #{balanceType},
+			test_flag = #{testFlag}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM er_bill_detail_201612
+		WHERE id = #{id}
+	</update> -->
+	
+</mapper>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.settlementfront.dao.DrBillDetailDao">
+    
+	<sql id="drBillDetailColumns">
+		a.dr_type AS "drType",
+		a.sett_date AS "settDate",
+		a.trade_code AS "tradeCode",
+		a.trade_charge AS "tradeCharge",
+		a.trans_time AS "transTime",
+		a.trace_no AS "traceNo",
+		a.recv_org_id AS "recvOrgId",
+		a.send_org_id AS "sendOrgId",
+		a.seller_type AS "sellerType",
+		a.terminal_id AS "terminalId",
+		a.acquirer_id AS "acquirerId",
+		a.acquirer_addr AS "acquirerAddr",
+		a.bill_org_code AS "billOrgCode",
+		a.issue_org_code AS "issueOrgCode",
+		a.card_no AS "cardNo",
+		a.trade_date AS "tradeDate",
+		substr(a.trade_time,1,2)||':'||substr(a.trade_time,3,2)||':'||substr(a.trade_time,5,2) AS "tradeTime",
+		a.roam_type AS "roamType",
+		a.service_fee AS "serviceFee",
+		a.issue_fee AS "issueFee",
+		a.bill_fee AS "billFee",
+		a.sys_error_code AS "sysErrorCode",
+		a.sys_error_msg AS "sysErrorMsg",
+		a.deal_time AS "dealTime",
+		a.indb_time AS "indbTime",
+		a.other_fee AS "otherFee",
+		a.beforetrade_charge_dec AS "beforetradeChargeDec"
+	</sql>
+	
+	<sql id="drBillDetailJoins">
+		LEFT JOIN sys_office o ON (o.id = substr(a.send_org_id, 2, 7) or o.id= substr(a.issue_org_code, 2, 7) )  and o.del_flag='0' and o.useable='1'
+	</sql>
+    
+	
+	<select id="findList" resultType="DrBillDetail">
+		SELECT 
+			<include refid="drBillDetailColumns"/>
+		FROM ${tableName} a
+		<include refid="drBillDetailJoins"/>
+		<where>
+			1=1 
+			<if test="drType != null and drType != ''">
+				AND a.dr_type like 
+					<if test="dbName == 'oracle'">'%'||#{drType}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{drType}+'%'</if>
+					<if test="dbName == 'mysql'">CONCAT('%', #{drType}, '%')</if>
+			</if>
+			<if test="cardNo != null and cardNo != ''">
+				AND a.card_no like 
+					<if test="dbName == 'oracle'">'%'||#{cardNo}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{cardNo}+'%'</if>
+					<if test="dbName == 'mysql'">CONCAT('%', #{cardNo}, '%')</if>
+			</if>
+			<if test="billOrgCode != null and billOrgCode != ''">
+				AND substr(recv_org_id,2,7)= #{billOrgCode}
+			</if>
+			<if test="issueOrgCode != null and issueOrgCode != ''">
+				AND substr(issue_org_code,2,7)= #{issueOrgCode}
+			</if>
+
+		</where>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf} 
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy},a.sett_date desc
+			</when>
+			<otherwise>
+				ORDER BY a.sett_date desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	
+</mapper>

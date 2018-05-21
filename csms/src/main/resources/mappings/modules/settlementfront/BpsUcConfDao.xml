@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.settlementfront.dao.BpsUcConfDao">
+    
+	<sql id="bpsUcConfColumns">
+		a.id AS "id",
+		a.send_date AS "sendDate",
+		a.send_org_code AS "sendOrgCode",
+		a.file_name AS "fileName",
+		a.issue_org_code AS "issueOrgCode",
+		a.card_no AS "cardNo",
+		a.deal_time AS "dealTime",
+		a.indb_time AS "indbTime",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="bpsUcConfJoins">
+	</sql>
+    
+	<select id="get" resultType="BpsUcConf">
+		SELECT 
+			<include refid="bpsUcConfColumns"/>
+		FROM bps_uc_conf a
+		<include refid="bpsUcConfJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="BpsUcConf">
+		SELECT 
+			<include refid="bpsUcConfColumns"/>
+		FROM bps_uc_conf a
+		<include refid="bpsUcConfJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="sendDate != null and sendDate != ''">
+				AND a.send_date = #{sendDate}
+			</if>
+			<if test="sendOrgCode != null and sendOrgCode != ''">
+				AND a.send_org_code = #{sendOrgCode}
+			</if>
+			<if test="fileName != null and fileName != ''">
+				AND a.file_name = #{fileName}
+			</if>
+			<if test="issueOrgCode != null and issueOrgCode != ''">
+				AND a.issue_org_code = #{issueOrgCode}
+			</if>
+			<if test="cardNo != null and cardNo != ''">
+				AND a.card_no = #{cardNo}
+			</if>
+			<if test="dealTime != null and dealTime != ''">
+				AND a.deal_time = #{dealTime}
+			</if>
+			<if test="indbTime != null and indbTime != ''">
+				AND a.indb_time = #{indbTime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="BpsUcConf">
+		SELECT 
+			<include refid="bpsUcConfColumns"/>
+		FROM bps_uc_conf a
+		<include refid="bpsUcConfJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO bps_uc_conf(
+			id,
+			send_date,
+			send_org_code,
+			file_name,
+			issue_org_code,
+			card_no,
+			deal_time,
+			indb_time,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{sendDate},
+			#{sendOrgCode},
+			#{fileName},
+			#{issueOrgCode},
+			#{cardNo},
+			#{dealTime},
+			#{indbTime},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE bps_uc_conf SET 	
+			send_date = #{sendDate},
+			send_org_code = #{sendOrgCode},
+			file_name = #{fileName},
+			issue_org_code = #{issueOrgCode},
+			card_no = #{cardNo},
+			deal_time = #{dealTime},
+			indb_time = #{indbTime},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE bps_uc_conf SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

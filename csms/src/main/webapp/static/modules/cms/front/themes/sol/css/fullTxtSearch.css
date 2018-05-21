@@ -1,0 +1,52 @@
+.banner .banner-inner .left .searchBox {
+	clear: both;
+	width: 165px;
+	margin: 0 auto;
+	padding: 23px 0 23px 0;
+}
+.banner .banner-inner .left .searchBox .searchTxt {
+	width: 110px;
+	height: 24px;
+	font-size: 14px;
+	color: #333333;
+}
+
+.banner .banner-inner .left .searchBox .searchBtn {
+	width: 46px;
+	height: 25px;
+	background-color: #0080cb;
+	color: #fff;
+	border: 0;
+}
+.banner .banner-inner .left .keyWords {
+	width: 165px;
+	height: 418px;
+	margin: 0 auto;
+	color: #539bd3;
+	font-size: 12px;
+}
+.banner .banner-inner .left .keyWords span{
+	margin-right: 5px;
+	line-height: 26px;
+}
+.banner .banner-inner .right .result .searchTxt {
+	color: #539bd3;
+}
+.banner .banner-inner .right .result {
+	color: #808080;
+	font-size: 12px;
+	margin: 15px 0px 7px 0;
+}
+.banner .banner-inner .right .records {
+	list-style: none;
+}
+.banner .banner-inner .right .records .recordTit {
+	color: #539bd3;
+	font-size: 16px;
+	line-height: 40px;
+}
+.banner .banner-inner .right .records .recordText {
+	font-size: 12px;
+	color: #808080;
+	line-height: 20px;
+}

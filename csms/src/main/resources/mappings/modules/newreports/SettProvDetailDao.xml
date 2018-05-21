@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.newreports.dao.SettProvDetailDao">
+    
+	<sql id="DISTINCTProvDetailColumns">
+		distinct 
+		a.bill_org_code AS "billOrgCode",
+	    b.org_name AS "issueOrgName",
+	    c.org_name AS "billOrgName"
+	</sql>
+	
+	<sql id="settProvDetailColumns">
+		a.sett_date AS "settDate",
+	    a.trade_type AS "tradeType",
+	    a.issue_org_code AS "issueOrgCode",
+	    b.org_name AS "issueOrgName",
+	    a.bill_org_code AS "billOrgCode",
+	    c.org_name AS "billOrgName",
+	    a.card_no AS "cardNo",
+	    a.before_trade_charge/100 AS "beforeTradeCharge",
+	    a.trade_charge/100 AS "tradeCharge",
+	    a.trade_date AS "tradeDate",
+	    a.trade_time AS "tradeTime",
+	    a.service_charge/100 AS "serviceCharge",
+	    a.issue_charge/100 AS "issueCharge",
+	    a.bill_charge/100 AS "billCharge",
+	    a.center_charge/100 AS "centerCharge",
+	    a.sett_charge/100 AS "settCharge"
+	</sql>
+	
+	<sql id="settProvDetailJoins">
+		LEFT JOIN bps_sys_org_info b ON b.org_code = substr(a.issue_org_code,2,7)
+		LEFT JOIN bps_sys_org_info c ON c.org_code = substr(a.bill_org_code,2,7)
+	</sql>
+    
+	<select id="get" resultType="SettProvDetail">
+		SELECT 
+			<include refid="settProvDetailColumns"/>
+		FROM sett_prov_detail a
+		<include refid="settProvDetailJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SettProvDetail">
+		SELECT 
+			<include refid="settProvDetailColumns"/>
+		FROM sett_prov_detail a
+		<include refid="settProvDetailJoins"/>
+		<where>
+			
+		<if test="beginSettDate != null and endSettDate != null and beginSettDate != '' and endSettDate != ''">
+				AND a.sett_date BETWEEN #{beginSettDate} AND #{endSettDate}
+			</if>
+			<if test="issueOrgName != null and issueOrgName != ''">
+				AND b.org_name = #{issueOrgName}
+			</if>
+			<if test="billOrgName != null and billOrgName != ''">
+				AND c.org_name = #{billOrgName}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy},a.sett_date desc
+			</when>
+			<otherwise>
+				order by a.sett_date desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	
+	
+	<select id="findAllList" resultType="SettProvDetail">
+		SELECT 
+			<include refid="DISTINCTProvDetailColumns"/>
+		FROM sett_prov_detail a
+		<include refid="settProvDetailJoins"/>
+		<where>
+			
+		</where>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sett_prov_detail(
+			sett_date,
+			trade_type,
+			issue_org_code,
+			bill_org_code,
+			card_no,
+			before_trade_charge,
+			trade_charge,
+			trade_date,
+			trade_time,
+			service_charge,
+			issue_charge,
+			bill_charge,
+			center_charge,
+			sett_charge
+		) VALUES (
+			#{settDate},
+			#{tradeType},
+			#{issueOrgCode},
+			#{billOrgCode},
+			#{cardNo},
+			#{beforeTradeCharge},
+			#{tradeCharge},
+			#{tradeDate},
+			#{tradeTime},
+			#{serviceCharge},
+			#{issueCharge},
+			#{billCharge},
+			#{centerCharge},
+			#{settCharge}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sett_prov_detail SET 	
+			sett_date = #{settDate},
+			trade_type = #{tradeType},
+			issue_org_code = #{issueOrgCode},
+			bill_org_code = #{billOrgCode},
+			card_no = #{cardNo},
+			before_trade_charge = #{beforeTradeCharge},
+			trade_charge = #{tradeCharge},
+			trade_date = #{tradeDate},
+			trade_time = #{tradeTime},
+			service_charge = #{serviceCharge},
+			issue_charge = #{issueCharge},
+			bill_charge = #{billCharge},
+			center_charge = #{centerCharge},
+			sett_charge = #{settCharge}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM sett_prov_detail
+		WHERE id = #{id}
+	</update>
+
+	<!-- 新增合计功能 -->
+	<select id="getSum" resultType="SettProvDetail">
+		SELECT
+		sum(a.trade_charge)/100 AS "tradeCharge",
+		sum(a.service_charge)/100 AS "serviceCharge",
+		sum(a.issue_charge)/100 AS "issueCharge",
+		sum(a.bill_charge)/100 AS "billCharge",
+		sum(a.center_charge)/100 AS "centerCharge",
+		sum(a.sett_charge)/100 AS "settCharge"
+		FROM sett_prov_detail a
+		<include refid="settProvDetailJoins"/>
+		<where>
+
+			<if test="beginSettDate != null and endSettDate != null and beginSettDate != '' and endSettDate != ''">
+				AND a.sett_date BETWEEN #{beginSettDate} AND #{endSettDate}
+			</if>
+			<if test="issueOrgName != null and issueOrgName != ''">
+				AND b.org_name = #{issueOrgName}
+			</if>
+			<if test="billOrgName != null and billOrgName != ''">
+				AND c.org_name = #{billOrgName}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+</mapper>

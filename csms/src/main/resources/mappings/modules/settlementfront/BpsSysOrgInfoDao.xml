@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.settlementfront.dao.BpsSysOrgInfoDao">
+    
+	<sql id="bpsSysOrgInfoColumns">
+		a.id AS "id",
+		a.org_code AS "orgCode",
+		a.org_name AS "orgName",
+		a.area_type AS "areaType",
+		a.city_code AS "cityCode",
+		a.eff_date AS "effDate",
+		a.exp_date AS "expDate",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remark AS "remark",
+		a.deal_flag AS "dealFlag",
+		c.remarks AS "cityName"
+	</sql>
+	
+	<sql id="bpsSysOrgInfoJoins">
+		LEFT JOIN sys_area c ON c.id = a.city_code
+	</sql>
+    
+	<select id="get" resultType="BpsSysOrgInfo">
+		SELECT 
+			<include refid="bpsSysOrgInfoColumns"/>
+		FROM bps_sys_org_info a
+		<include refid="bpsSysOrgInfoJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="BpsSysOrgInfo">
+		SELECT 
+			<include refid="bpsSysOrgInfoColumns"/>
+		FROM bps_sys_org_info a
+		<include refid="bpsSysOrgInfoJoins"/>
+		<where>
+			<if test="id!=null and id!=''">
+				and a.id = #{id}
+			</if>
+			<if test="orgCode!=null and orgCode!=''">
+				and a.org_code = #{orgCode}
+			</if>
+			<if test="orgName!=null and orgName!=''">
+				and a.org_name = #{orgName}
+			</if>
+			<if test="areaType!=null and areaType!=''">
+				and a.area_type = #{areaType}
+			</if>
+			<if test="cityCode!=null and cityCode!=''">
+				and a.city_code = #{cityCode}
+			</if>
+			<if test="effDate!=null and effDate!=''">
+				and a.eff_date <![CDATA[ >= #{effDate} ]]>
+			</if>
+			<if test="expDate!=null and expDate!=''">
+				and a.exp_date <![CDATA[ <= #{expDate} ]]>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="BpsSysOrgInfo">
+		SELECT 
+			<include refid="bpsSysOrgInfoColumns"/>
+		FROM bps_sys_org_info a
+		<include refid="bpsSysOrgInfoJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO bps_sys_org_info(
+			id,
+			org_code,
+			org_name,
+			area_type,
+			city_code,
+			eff_date,
+			exp_date,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remark,
+			deal_flag
+		) VALUES (
+			ORG_INFO_ID_SEQ.nextval,
+			#{orgCode},
+			#{orgName},
+			#{areaType},
+			#{cityCode},
+			#{effDate},
+			#{expDate},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remark},
+			#{dealFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE bps_sys_org_info SET 	
+			org_code = #{orgCode},
+			org_name = #{orgName},
+			area_type = #{areaType},
+			city_code = #{cityCode},
+			eff_date = #{effDate},
+			exp_date = #{expDate},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remark = #{remark},
+			deal_flag = #{dealFlag}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE bps_sys_org_info SET
+		deal_flag = #{DEL_FLAG_DELETE} 
+		WHERE id = #{id}
+	</update>
+	<select id="findDropDownMap" resultType="BpsSysOrgInfo">
+		SELECT 
+			<include refid="bpsSysOrgInfoColumns"/>
+		FROM bps_sys_org_info a
+		<include refid="bpsSysOrgInfoJoins"/>
+	</select>
+</mapper>

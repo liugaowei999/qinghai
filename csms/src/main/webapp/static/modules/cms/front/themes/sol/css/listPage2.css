@@ -1,0 +1,25 @@
+.banner .banner-inner .left .meau{
+	clear: both;
+	padding-left: 28px;
+}
+.banner .banner-inner .left .meau li {
+	list-style: none;
+	padding-top: 31px;
+	cursor: pointer;
+	font-size: 14px;
+	color: #666666;
+}
+.banner .banner-inner .right .iconBox .areaBox {
+	float: left;
+	margin-top: 29px;
+	cursor: pointer;
+	color: #808080;
+	font-size: 14px;
+	text-align: center;
+}
+.banner .banner-inner .right .iconBox .areaBox.box1 {
+	margin-left: 34px;
+}
+.banner .banner-inner .right .iconBox .areaBox.box2 {
+	margin-left: 70px;
+}

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.settlementfront.dao.InfoBnConfDao">
+    
+	<sql id="infoBnConfColumns">
+		o.id AS "company.id",
+		o.name AS "company.name",
+		o.parent_ids AS "company.parentIds",
+		a.down_date AS "downDate",
+		a.file_name AS "fileName",
+		a.issue_org_code AS "issueOrgCode",
+		a.card_bin_no AS "cardBinNo",
+		a.deal_time AS "dealTime",
+		a.indb_time AS "indbTime"
+		
+	</sql>
+	
+	<sql id="infoBnConfJoins">
+	LEFT JOIN sys_office o ON o.id = a.issue_org_code  and o.del_flag='0' and o.useable='1'
+	</sql>
+    
+	<select id="get" resultType="infoBnConf">
+		SELECT 
+			<include refid="infoBnConfColumns"/>
+		FROM info_bn_conf a
+		<include refid="infoBnConfJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="infoBnConf">
+		SELECT 
+			<include refid="infoBnConfColumns"/>
+		FROM info_bn_conf a
+		<include refid="infoBnConfJoins"/>
+		<where>
+			<if test="downDate != null and downDate != ''">
+				AND a.down_date = #{downDate}
+			</if>
+			 <if test="issueOrgCode != null and issueOrgCode != ''">
+				AND a.issue_org_code = #{issueOrgCode}
+			</if> 
+			<if test="company != null and company.id != null and company.id != ''">
+				AND (o.id = #{company.id} OR o.parent_ids LIKE '%,'||#{company.id}||',%')
+			</if>
+			<if test="cardBinNo != null and cardBinNo != ''">
+				AND a.card_bin_no = #{cardBinNo}
+			</if>
+			<if test="dealTime != null and dealTime != ''">
+				AND a.deal_time = #{dealTime}
+			</if>
+			<if test="indbTime != null and indbTime != ''">
+				AND a.indb_time = #{indbTime}
+			</if>
+		</where>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="infoBnConf">
+		SELECT 
+			<include refid="infoBnConfColumns"/>
+		FROM info_bn_conf a
+		<include refid="infoBnConfJoins"/>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+		</choose>
+	</select>
+	
+	
+</mapper>

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.settlementfront.dao.SettLdDao">
+    
+	<sql id="settLdColumns">
+		o.id AS "company.id",
+		o.name AS "company.name",
+		o.parent_ids AS "company.parentIds",
+		a.sett_date AS "settDate",
+		a.recv_org_code AS "recvOrgCode",
+		a.file_name AS "fileName",
+		a.sett_org_no AS "settOrgNo",
+		a.file_list_name AS "fileListName",
+		a.err_code AS "errCode",
+		a.err_info AS "errInfo",
+		a.reserved AS "reserved",
+		a.deal_time AS "dealTime",
+		a.indb_time AS "indbTime"
+	</sql>
+	
+	<sql id="settLdJoins">
+		LEFT JOIN sys_office o ON o.id = a.recv_org_code  and o.del_flag='0' and o.useable='1'
+	</sql>
+    
+	<select id="get" resultType="SettLd">
+		SELECT 
+			<include refid="settLdColumns"/>
+		FROM ${tableName} a
+		<include refid="settLdJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SettLd">
+		SELECT 
+			<include refid="settLdColumns"/>
+		FROM ${tableName} a
+		<include refid="settLdJoins"/>
+		<where>
+			1=1
+			<if test="company != null and company.id != null and company.id != ''">
+				AND (o.id = #{company.id} OR o.parent_ids LIKE '%,'||#{company.id}||',%')
+			</if>
+			<if test="recvOrgCode != null and recvOrgCode != ''">
+				AND recv_org_code= #{recvOrgCode}
+			</if>
+			<if test="errCode != null and errCode != ''">
+					AND substr(err_code,6,1)= #{errCode}
+			</if>
+		</where>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy},a.sett_date desc
+			</when>
+			<otherwise>
+				order by a.sett_date desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SettLd">
+		SELECT 
+			<include refid="settLdColumns"/>
+		FROM ${tableName} a
+		<include refid="settLdJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy},a.sett_date desc
+			</when>
+			<otherwise>
+				order by a.sett_date desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ${tableName}(
+			sett_date,
+			recv_org_code,
+			file_name,
+			sett_org_no,
+			file_list_name,
+			err_code,
+			err_info,
+			reserved,
+			deal_time,
+			indb_time
+		) VALUES (
+			#{settDate},
+			#{recvOrgCode},
+			#{fileName},
+			#{settOrgNo},
+			#{fileListName},
+			#{errCode},
+			#{errInfo},
+			#{reserved},
+			#{dealTime},
+			#{indbTime}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ${tableName} SET 	
+			sett_date = #{settDate},
+			recv_org_code = #{recvOrgCode},
+			file_name = #{fileName},
+			sett_org_no = #{settOrgNo},
+			file_list_name = #{fileListName},
+			err_code = #{errCode},
+			err_info = #{errInfo},
+			reserved = #{reserved},
+			deal_time = #{dealTime},
+			indb_time = #{indbTime}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM ${tableName}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

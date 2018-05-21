@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.settlementfront.dao.BpsRecordFormatDao">
+    
+	<sql id="bpsRecordFormatColumns">
+		a.dr_type AS "drType",
+		a.filed_name AS "filedName",
+		a.filed_index AS "filedIndex",
+		a.value_type AS "valueType",
+		a.seq AS "seq",
+		a.note AS "note",
+		a.dict_id AS "dictId",
+		a.oper_id as "operId",
+		a.oper_time as "operTime"
+		
+	</sql>
+	
+	<sql id="bpsRecordFormatJoins">
+	</sql>
+    
+	<select id="get" resultType="BpsRecordFormat">
+		SELECT 
+			<include refid="bpsRecordFormatColumns"/>
+		FROM bps_record_format a
+		<include refid="bpsRecordFormatJoins"/>
+		where id = #{id}
+	</select>
+	
+	<select id="findList" resultType="BpsRecordFormat">
+		SELECT 
+			<include refid="bpsRecordFormatColumns"/>
+		FROM bps_record_format a
+		<include refid="bpsRecordFormatJoins"/>
+		<where>
+			<if test="drType!=null and drType!=''">
+				and a.dr_type = #{drType}
+			</if>
+			<if test="valueType!=null and valueType!=''">
+				and a.value_type = #{valueType}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="BpsRecordFormat">
+		SELECT 
+			<include refid="bpsRecordFormatColumns"/>
+		FROM bps_record_format a
+		<include refid="bpsRecordFormatJoins"/>
+			
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findDrTypeList" resultType="java.util.HashMap">
+		SELECT DISTINCT a.dr_type AS "drType" 
+		FROM bps_record_format a
+
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO bps_record_format(
+			dr_type,
+			filed_name,
+			filed_index,
+			value_type,
+			seq,
+			note,
+			dict_id
+			
+		) VALUES (
+			#{drType},
+			#{filedName},
+			#{filedIndex},
+			#{valueType},
+			#{seq},
+			#{note},
+			#{dictId}
+			
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE bps_record_format SET 	
+			dr_type = #{drType},
+			filed_name = #{filedName},
+			filed_index = #{filedIndex},
+			value_type = #{valueType},
+			seq = #{seq},
+			note = #{note},
+			dict_id = #{dictId},
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE bps_record_format SET 
+		deal_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

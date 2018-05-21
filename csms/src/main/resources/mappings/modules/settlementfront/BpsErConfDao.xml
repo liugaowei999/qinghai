@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.settlementfront.dao.BpsErConfDao">
+    
+	<sql id="bpsErConfColumns">
+		a.id AS "id",
+		a.down_date AS "downDate",
+		a.file_name AS "fileName",
+		a.err_code AS "errCode",
+		a.err_info AS "errInfo",
+		a.deal_time AS "dealTime",
+		a.indb_time AS "indbTime",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="bpsErConfJoins">
+	</sql>
+    
+	<select id="get" resultType="BpsErConf">
+		SELECT 
+			<include refid="bpsErConfColumns"/>
+		FROM bps_er_conf a
+		<include refid="bpsErConfJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="BpsErConf">
+		SELECT 
+			<include refid="bpsErConfColumns"/>
+		FROM bps_er_conf a
+		<include refid="bpsErConfJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="downDate != null and downDate != ''">
+				AND a.down_date = #{downDate}
+			</if>
+			<if test="fileName != null and fileName != ''">
+				AND a.file_name like '%'||#{fileName}||'%'
+			</if>
+			<if test="errCode != null and errCode != ''">
+				AND a.err_code = #{errCode}
+			</if>
+			<if test="errInfo != null and errInfo != ''">
+				AND a.err_info = #{errInfo}
+			</if>
+			<if test="dealTime != null and dealTime != ''">
+				AND a.deal_time = #{dealTime}
+			</if>
+			<if test="indbTime != null and indbTime != ''">
+				AND a.indb_time = #{indbTime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="BpsErConf">
+		SELECT 
+			<include refid="bpsErConfColumns"/>
+		FROM bps_er_conf a
+		<include refid="bpsErConfJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO bps_er_conf(
+			id,
+			down_date,
+			file_name,
+			err_code,
+			err_info,
+			deal_time,
+			indb_time,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{downDate},
+			#{fileName},
+			#{errCode},
+			#{errInfo},
+			#{dealTime},
+			#{indbTime},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE bps_er_conf SET 	
+			down_date = #{downDate},
+			file_name = #{fileName},
+			err_code = #{errCode},
+			err_info = #{errInfo},
+			deal_time = #{dealTime},
+			indb_time = #{indbTime},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE bps_er_conf SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

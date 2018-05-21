@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.cash.dao.SettBpDetailDao">
+    
+	<sql id="settBpDetailColumns">
+		o.id AS "company.id",
+		o.name AS "company.name",
+		o.parent_ids AS "company.parentIds",
+		a.sett_date AS "settDate",
+		a.recv_org_code AS "recvOrgCode",
+		a.file_name AS "fileName",
+		a.income_charge AS "incomeCharge",
+		a.pay_charge AS "payCharge",
+		a.test_income_charge AS "testIncomeCharge",
+		a.test_pay_charge AS "testPayCharge",
+		a.deposit_change_charge AS "depositChangeCharge",
+		a.charge_sign AS "chargeSign",
+		a.deal_time AS "dealTime",
+		a.indb_time AS "indbTime"
+	</sql>
+	
+	<sql id="settBpDetailJoins">
+		LEFT JOIN sys_office o ON o.id = a.recv_org_code  and o.del_flag='0' and o.useable='1'
+	</sql>
+    
+	<select id="get" resultType="SettBpDetail">
+		SELECT 
+			<include refid="settBpDetailColumns"/>
+		FROM sett_bp_detail a
+		<include refid="settBpDetailJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	
+	<select id="findListForSync" resultType="SettBpDetail">
+		SELECT 
+			a.sett_date AS "settDate",
+			a.recv_org_code AS "recvOrgCode",
+			a.file_name AS "fileName",
+			a.income_charge AS "incomeCharge",
+			a.pay_charge AS "payCharge",
+			a.test_income_charge AS "testIncomeCharge",
+			a.test_pay_charge AS "testPayCharge",
+			a.deposit_change_charge AS "depositChangeCharge",
+			a.charge_sign AS "chargeSign",
+			a.deal_time AS "dealTime",
+			a.indb_time AS "indbTime"
+		FROM sett_bp_detail a
+		<where>
+		    	and  substr(a.indb_time,0,8) = to_char(sysdate,'yyyymmdd')
+			<if test="recvOrgCode != null and recvOrgCode != ''">
+				AND a.recv_org_code = #{recvOrgCode}
+			</if>
+		</where>
+	</select>
+	
+	<select id="findList" resultType="SettBpDetail">
+		SELECT 
+			<include refid="settBpDetailColumns"/>
+		FROM sett_bp_detail a
+		<include refid="settBpDetailJoins"/>
+		<where>
+		 	1=1
+			<if test="beginDate != null and beginDate != ''">
+				AND a.sett_date &gt;= #{beginDate}
+			</if>
+			<if test="endDate != null and endDate != ''">
+				AND a.sett_date &lt;= #{endDate}
+			</if>
+			<if test="company != null and company.id != null and company.id != ''">
+				AND (o.id = #{company.id} OR o.parent_ids LIKE '%,'||#{company.id}||',%')
+			</if>
+			<if test="recvOrgCode != null and recvOrgCode != ''">
+				AND a.recv_org_code = #{recvOrgCode}
+			</if>
+		</where>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.sett_date DESC
+			</otherwise>
+		</choose>
+	</select>
+		
+	<select id="findSumForPay" parameterType="map" resultType="java.lang.Long">
+		  SELECT nvl(sum(pay_charge),0)
+		FROM sett_bp_detail a
+		<where>
+			<if test="beginSettDate != null and beginSettDate != ''">
+				AND a.sett_date &gt;= #{beginSettDate}
+			</if>
+			<if test="endSettDate != null and endSettDate != ''">
+				AND a.sett_date &lt;= #{endSettDate}
+			</if>
+			<if test="settBpDetail != null and settBpDetail.recvOrgCode != null and settBpDetail.recvOrgCode != ''">
+				AND a.recv_org_code = #{settBpDetail.recvOrgCode}
+			</if>
+		</where>
+	</select>
+	
+	<select id="findAllList" resultType="SettBpDetail">
+		SELECT 
+			<include refid="settBpDetailColumns"/>
+		FROM sett_bp_detail a
+		<include refid="settBpDetailJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sett_bp_detail(
+			sett_date,
+			recv_org_code,
+			file_name,
+			income_charge,
+			pay_charge,
+			test_income_charge,
+			test_pay_charge,
+			deposit_change_charge,
+			charge_sign,
+			deal_time,
+			indb_time
+		) VALUES (
+			#{settDate},
+			#{recvOrgCode},
+			#{fileName},
+			#{incomeCharge},
+			#{payCharge},
+			#{testIncomeCharge},
+			#{testPayCharge},
+			#{depositChangeCharge},
+			#{chargeSign},
+			#{dealTime},
+			#{indbTime}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sett_bp_detail SET 	
+			sett_date = #{settDate},
+			recv_org_code = #{recvOrgCode},
+			file_name = #{fileName},
+			income_charge = #{incomeCharge},
+			pay_charge = #{payCharge},
+			test_income_charge = #{testIncomeCharge},
+			test_pay_charge = #{testPayCharge},
+			deposit_change_charge = #{depositChangeCharge},
+			charge_sign = #{chargeSign},
+			deal_time = #{dealTime},
+			indb_time = #{indbTime}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM sett_bp_detail
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

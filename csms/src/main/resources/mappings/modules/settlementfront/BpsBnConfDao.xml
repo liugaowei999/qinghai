@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.settlementfront.dao.BpsBnConfDao">
+    
+	<sql id="bpsBnConfColumns">
+		o.id AS "company.id",
+		o.name AS "company.name",
+		o.parent_ids AS "company.parentIds",
+		a.id AS "id",
+		a.down_date AS "downDate",
+		a.file_name AS "fileName",
+		a.issue_org_code AS "issueOrgCode",
+		a.card_bin_no AS "cardBinNo",
+		a.deal_time AS "dealTime",
+		a.indb_time AS "indbTime",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="bpsBnConfJoins">
+	LEFT JOIN sys_office o ON o.id = a.issue_org_code  and o.del_flag='0' and o.useable='1'
+	</sql>
+    
+	<select id="get" resultType="BpsBnConf">
+		SELECT 
+			<include refid="bpsBnConfColumns"/>
+		FROM bps_bn_conf a
+		<include refid="bpsBnConfJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="BpsBnConf">
+		SELECT 
+			<include refid="bpsBnConfColumns"/>
+		FROM bps_bn_conf a
+		<include refid="bpsBnConfJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="downDate != null and downDate != ''">
+				AND a.down_date = #{downDate}
+			</if>
+			<!-- <if test="issueOrgCode != null and issueOrgCode != ''">
+				AND a.issue_org_code = #{issueOrgCode}
+			</if> -->
+			<if test="company != null and company.id != null and company.id != ''">
+				AND (o.id = #{company.id} OR o.parent_ids LIKE '%,'||#{company.id}||',%')
+			</if>
+			<if test="cardBinNo != null and cardBinNo != ''">
+				AND a.card_bin_no = #{cardBinNo}
+			</if>
+			<if test="dealTime != null and dealTime != ''">
+				AND a.deal_time = #{dealTime}
+			</if>
+			<if test="indbTime != null and indbTime != ''">
+				AND a.indb_time = #{indbTime}
+			</if>
+		</where>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="BpsBnConf">
+		SELECT 
+			<include refid="bpsBnConfColumns"/>
+		FROM bps_bn_conf a
+		<include refid="bpsBnConfJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO bps_bn_conf(
+			id,
+			down_date,
+			file_name,
+			issue_org_code,
+			card_bin_no,
+			deal_time,
+			indb_time,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{downDate},
+			#{fileName},
+			#{issueOrgCode},
+			#{cardBinNo},
+			#{dealTime},
+			#{indbTime},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE bps_bn_conf SET 	
+			down_date = #{downDate},
+			file_name = #{fileName},
+			issue_org_code = #{issueOrgCode},
+			card_bin_no = #{cardBinNo},
+			deal_time = #{dealTime},
+			indb_time = #{indbTime},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE bps_bn_conf SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

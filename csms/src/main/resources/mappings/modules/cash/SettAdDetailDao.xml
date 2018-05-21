@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.cash.dao.SettAdDetailDao">
+    
+	<sql id="settAdDetailColumns">
+		o.id AS "company.id",
+		o.name AS "company.name",
+		o.parent_ids AS "company.parentIds",
+		a.id AS "id",
+		a.sett_date AS "settDate",
+		a.recv_org_code AS "recvOrgCode",
+		a.file_name AS "fileName",
+		a.sett_change_no AS "settChangeNo",
+		a.ori_sett_date AS "oriSettDate",
+		a.ori_sett_org_no AS "oriSettOrgNo",
+		a.ori_bill_org_no AS "oriBillOrgNo",
+		a.ori_bill_deal_date AS "oriBillDealDate",
+		a.ori_retriev_no AS "oriRetrievNo",
+		a.ori_trade_type AS "oriTradeType",
+		a.adjust_type AS "adjustType",
+		a.card_no AS "cardNo",
+		a.issue_org_code AS "issueOrgCode",
+		a.recv_org_code1 AS "recvOrgCode1",
+		a.bill_org_code AS "billOrgCode",
+		a.send_org_id AS "sendOrgId",
+		a.err_ori_org_id AS "errOriOrgId",
+		a.err_confirm_org_id AS "errConfirmOrgId",
+		a.card_count AS "cardCount",
+		a.beforetrade_charge AS "beforetradeCharge",
+		a.adjusted_trade_type AS "adjustedTradeType",
+		a.adjusted_trade_charge AS "adjustedTradeCharge",
+		a.mcc AS "mcc",
+		a.channel_type AS "channelType",
+		a.trade_date AS "tradeDate",
+		a.trade_time AS "tradeTime",
+		a.test_flag AS "testFlag",
+		a.cause_code AS "causeCode",
+		a.response_code AS "responseCode",
+		a.err_code AS "errCode",
+		a.err_info AS "errInfo",
+		a.err_charge AS "errCharge",
+		a.sett_charge AS "settCharge",
+		a.issue_charge AS "issueCharge",
+		a.bill_charge AS "billCharge",
+		a.deal_time AS "dealTime",
+		a.indb_time AS "indbTime"
+	</sql>
+	
+	<sql id="settAdDetailJoins">
+		LEFT JOIN sys_office o ON o.id = a.recv_org_code  and o.del_flag='0' and o.useable='1'
+	</sql>
+    
+	<select id="get" resultType="SettAdDetail">
+		SELECT 
+			<include refid="settAdDetailColumns"/>
+		FROM sett_ad_detail a
+		<include refid="settAdDetailJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SettAdDetail">
+		SELECT 
+			<include refid="settAdDetailColumns"/>
+		FROM sett_ad_detail a
+		<include refid="settAdDetailJoins"/>
+		<where>
+			1=1
+			<if test="settDate != null and settDate != ''">
+				AND a.sett_date = #{settDate}
+			</if>
+			<if test="beginDate != null and beginDate != ''">
+				AND a.sett_date &gt;= #{beginDate}
+			</if>
+			<if test="endDate != null and endDate != ''">
+				AND a.sett_date &lt;= #{endDate}
+			</if>
+			<if test="company != null and company.id != null and company.id != ''">
+				AND (o.id = #{company.id} OR o.parent_ids LIKE '%,'||#{company.id}||',%')
+			</if>
+			
+			<if test="issueOrgCode != null and issueOrgCode != ''">
+				AND substr(issue_org_code,1,7)= #{issueOrgCode}
+			</if>
+			<if test="billOrgCode != null and billOrgCode != ''">
+				AND substr(bill_org_code,1,7)= #{billOrgCode}
+			</if>
+			<if test="cardNo != null and cardNo != ''">
+				AND card_no= #{cardNo}
+			</if>
+		</where>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				order by a.sett_date desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SettAdDetail">
+		SELECT 
+			<include refid="settAdDetailColumns"/>
+		FROM sett_ad_detail a
+		<include refid="settAdDetailJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findListForSync" resultType="SettAdDetail">
+		SELECT 
+			<include refid="settAdDetailColumns"/>
+		FROM sett_ad_detail a
+		where a.indb_time = to_char(sysdate,'yyyymmdd')
+		<if test="recvOrgCode != null and recvOrgCode != ''">
+				AND a.recv_org_code = #{recvOrgCode}
+		</if>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sett_ad_detail(
+			sett_date,
+			recv_org_code,
+			file_name,
+			sett_change_no,
+			ori_sett_date,
+			ori_sett_org_no,
+			ori_bill_org_no,
+			ori_bill_deal_date,
+			ori_retriev_no,
+			ori_trade_type,
+			adjust_type,
+			card_no,
+			issue_org_code,
+			recv_org_code1,
+			bill_org_code,
+			send_org_id,
+			err_ori_org_id,
+			err_confirm_org_id,
+			card_count,
+			beforetrade_charge,
+			adjusted_trade_type,
+			adjusted_trade_charge,
+			mcc,
+			channel_type,
+			trade_date,
+			trade_time,
+			test_flag,
+			cause_code,
+			response_code,
+			err_code,
+			err_info,
+			err_charge,
+			sett_charge,
+			issue_charge,
+			bill_charge,
+			deal_time,
+			indb_time
+		) VALUES (
+			#{settDate},
+			#{recvOrgCode},
+			#{fileName},
+			#{settChangeNo},
+			#{oriSettDate},
+			#{oriSettOrgNo},
+			#{oriBillOrgNo},
+			#{oriBillDealDate},
+			#{oriRetrievNo},
+			#{oriTradeType},
+			#{adjustType},
+			#{cardNo},
+			#{issueOrgCode},
+			#{recvOrgCode1},
+			#{billOrgCode},
+			#{sendOrgId},
+			#{errOriOrgId},
+			#{errConfirmOrgId},
+			#{cardCount},
+			#{beforetradeCharge},
+			#{adjustedTradeType},
+			#{adjustedTradeCharge},
+			#{mcc},
+			#{channelType},
+			#{tradeDate},
+			#{tradeTime},
+			#{testFlag},
+			#{causeCode},
+			#{responseCode},
+			#{errCode},
+			#{errInfo},
+			#{errCharge},
+			#{settCharge},
+			#{issueCharge},
+			#{billCharge},
+			#{dealTime},
+			#{indbTime}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sett_ad_detail SET 	
+			sett_date = #{settDate},
+			recv_org_code = #{recvOrgCode},
+			file_name = #{fileName},
+			sett_change_no = #{settChangeNo},
+			ori_sett_date = #{oriSettDate},
+			ori_sett_org_no = #{oriSettOrgNo},
+			ori_bill_org_no = #{oriBillOrgNo},
+			ori_bill_deal_date = #{oriBillDealDate},
+			ori_retriev_no = #{oriRetrievNo},
+			ori_trade_type = #{oriTradeType},
+			adjust_type = #{adjustType},
+			card_no = #{cardNo},
+			issue_org_code = #{issueOrgCode},
+			recv_org_code1 = #{recvOrgCode1},
+			bill_org_code = #{billOrgCode},
+			send_org_id = #{sendOrgId},
+			err_ori_org_id = #{errOriOrgId},
+			err_confirm_org_id = #{errConfirmOrgId},
+			card_count = #{cardCount},
+			beforetrade_charge = #{beforetradeCharge},
+			adjusted_trade_type = #{adjustedTradeType},
+			adjusted_trade_charge = #{adjustedTradeCharge},
+			mcc = #{mcc},
+			channel_type = #{channelType},
+			trade_date = #{tradeDate},
+			trade_time = #{tradeTime},
+			test_flag = #{testFlag},
+			cause_code = #{causeCode},
+			response_code = #{responseCode},
+			err_code = #{errCode},
+			err_info = #{errInfo},
+			err_charge = #{errCharge},
+			sett_charge = #{settCharge},
+			issue_charge = #{issueCharge},
+			bill_charge = #{billCharge},
+			deal_time = #{dealTime},
+			indb_time = #{indbTime}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM sett_ad_detail
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

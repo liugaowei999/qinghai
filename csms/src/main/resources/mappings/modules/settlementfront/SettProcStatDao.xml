@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.settlementfront.dao.SettProcStatDao">
+    
+	<sql id="settProcStatColumns">
+		a.module_id AS "moduleId",
+		a.module_code AS "moduleCode",
+		a.module_name AS "moduleName",
+		a.program_name AS "programName",
+		a.sett_date AS "settDate",
+		a.status AS "status",
+		a.start_time AS "startTime",
+		a.end_time AS "endTime",
+		a.note AS "note",
+		b.module_id AS "bpsSysModule.moduleId",
+		b.module_code AS "bpsSysModule.moduleCode",
+		b.module_name AS "bpsSysModule.moduleName",
+		b.program_name AS "bpsSysModule.programName",
+		b.note AS "bpsSysModule.note"		
+	</sql>
+	
+	<sql id="settProcStatJoins">
+		right join bps_sys_module b on a.module_id = b.module_id and a.module_code = b.module_code 
+	</sql>
+    
+	<select id="get" resultType="SettProcStat">
+		SELECT 
+			<include refid="settProcStatColumns"/>
+		FROM sett_proc_stat a
+		<include refid="settProcStatJoins"/>
+		WHERE b.module_id = #{module_id}
+	</select>
+	
+	<select id="findList" resultType="SettProcStat">
+		SELECT 
+			<include refid="settProcStatColumns"/>
+		FROM sett_proc_stat a
+		<include refid="settProcStatJoins"/>
+		<where>
+			b.module_id like '9%' 
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy},a.sett_date desc
+			</when>
+			<otherwise>
+			 ORDER BY a.sett_date desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SettProcStat">
+		SELECT 
+			<include refid="settProcStatColumns"/>
+		FROM sett_proc_stat a
+		<include refid="settProcStatJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy},a.sett_date desc
+			</when>
+			<otherwise>
+			 ORDER BY a.sett_date desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="executeProc"  statementType="CALLABLE">
+       <![CDATA[
+	     {CALL ${proName} (
+	      #{month,mode=IN,jdbcType=VARCHAR}
+	      )}
+   		]]>
+    </select> 
+	
+	<parameterMap type="SettProcStat" id="getSkuCountMap">
+		<parameter property="bpsSysModule.note" mode="IN" jdbcType="VARCHAR"/>
+		<parameter property="settDate" mode="IN" jdbcType="VARCHAR"/>
+	</parameterMap> 
+	
+	<insert id="insert">
+		INSERT INTO sett_proc_stat(
+			module_id,
+			module_code,
+			module_name,
+			program_name,
+			sett_date,
+			status,
+			start_time,
+			end_time,
+			note
+		) VALUES (
+			#{moduleId},
+			#{moduleCode},
+			#{moduleName},
+			#{programName},
+			#{settDate},
+			#{status},
+			#{startTime},
+			#{endTime},
+			#{note}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sett_proc_stat SET 	
+			module_id = #{moduleId},
+			module_code = #{moduleCode},
+			module_name = #{moduleName},
+			program_name = #{programName},
+			sett_date = #{settDate},
+			status = #{status},
+			start_time = #{startTime},
+			end_time = #{endTime},
+			note = #{note}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM sett_proc_stat
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

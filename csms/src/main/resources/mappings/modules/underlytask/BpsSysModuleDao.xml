@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.underlytask.dao.BpsSysModuleDao">
+    
+	<sql id="bpsSysModuleColumns">
+		a.module_id AS "moduleId",
+		a.module_code AS "moduleCode",
+		a.module_name AS "moduleName",
+		a.program_name AS "programName",
+		a.note AS "note"
+	</sql>
+	
+	<sql id="bpsSysModuleJoins">
+	</sql>
+    
+	<select id="get" resultType="BpsSysModule">
+		SELECT 
+			<include refid="bpsSysModuleColumns"/>
+		FROM bps_sys_module a
+		<include refid="bpsSysModuleJoins"/>
+		WHERE a.module_id = #{id}
+	</select>
+	
+	<select id="findList" resultType="BpsSysModule">
+		SELECT 
+			<include refid="bpsSysModuleColumns"/>
+		FROM bps_sys_module a
+		<include refid="bpsSysModuleJoins"/>
+		<where>
+			1 = 1 
+			<if test="moduleCode != null and moduleCode != ''">
+				AND a.module_code like 
+						<if test="dbName == 'oracle'">'%'||#{moduleCode}||'%'</if>
+						<if test="dbName == 'mssql'">'%'+#{moduleCode}+'%'</if>
+						<if test="dbName == 'mysql'">CONCAT('%', #{moduleCode}, '%')</if>
+			</if>
+			<if test="moduleName != null and moduleName != ''">
+				AND a.module_name like 
+						<if test="dbName == 'oracle'">'%'||#{moduleName}||'%'</if>
+						<if test="dbName == 'mssql'">'%'+#{moduleName}+'%'</if>
+						<if test="dbName == 'mysql'">CONCAT('%', #{moduleName}, '%')</if>
+			</if>
+			<if test="programName != null and programName != ''">
+				AND a.program_name like 
+						<if test="dbName == 'oracle'">'%'||#{programName}||'%'</if>
+						<if test="dbName == 'mssql'">'%'+#{programName}+'%'</if>
+						<if test="dbName == 'mysql'">CONCAT('%', #{programName}, '%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="BpsSysModule">
+		SELECT 
+			<include refid="bpsSysModuleColumns"/>
+		FROM bps_sys_module a
+		<include refid="bpsSysModuleJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO bps_sys_module(
+			module_id,
+			module_code,
+			module_name,
+			program_name,
+			note
+		) VALUES (
+			#{moduleId},
+			#{moduleCode},
+			#{moduleName},
+			#{programName},
+			#{note}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE bps_sys_module SET 	
+			module_id = #{moduleId},
+			module_code = #{moduleCode},
+			module_name = #{moduleName},
+			program_name = #{programName},
+			note = #{note}
+		WHERE module_id = #{moduleId}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM bps_sys_module
+		WHERE module_id = #{moduleId}
+	</update>
+	
+</mapper>

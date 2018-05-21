@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.cash.dao.CashPayRecordDao">
+    
+	<sql id="cashPayRecordColumns">
+		a.id AS "id",
+		a.pay_money AS "payMoney",
+		a.pay_state AS "payState",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		b.id AS "cashProvisions.id",
+		b.provisions_no AS "cashProvisions.provisionsNo",
+		b.bankcard_no AS "cashProvisions.bankcardNo",
+		b.pay_period AS "cashProvisions.payPeriod",
+		b.deposite AS "cashProvisions.deposite",
+		b.total_amount AS "cashProvisions.totalAmount",
+		b.remaining_sum AS "cashProvisions.remainingSum",
+		<!-- b.withdraw_deposite AS "cashProvisions.withdrawDeposite", -->
+		b.need_pay AS "cashProvisions.needPay",
+		b.user_id AS "cashProvisions.userId",
+		b.create_by AS "cashProvisions.createBy",
+		b.create_date AS "cashProvisions.createDate",
+		b.update_by AS "cashProvisions.updateBy",
+		b.update_date AS "cashProvisions.updateDate",
+		b.remarks AS "cashProvisions.remarks",
+		b.del_flag AS "cashProvisions.delFlag",
+		a.office_name AS "officeName"
+	</sql>
+	
+	<sql id="cashPayRecordJoins">
+		LEFT JOIN cash_provisions b ON b.id = a.provisions_id
+	</sql>
+    
+	<select id="get" resultType="CashPayRecord">
+		SELECT 
+			<include refid="cashPayRecordColumns"/>
+		FROM cash_pay_record a
+		<include refid="cashPayRecordJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="CashPayRecord">
+		SELECT 
+			<include refid="cashPayRecordColumns"/>
+		FROM cash_pay_record a
+		<include refid="cashPayRecordJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="officeName != null and officeName != ''">
+				<!-- AND a.office_name like '%'||#{officeName}||'%'  -->
+				AND a.office_name = #{officeName}
+			</if>
+			<!-- provisions related info -->
+			<if test="cashProvisions != null">
+				<if test="cashProvisions.id != null and cashProvisions.id != ''">
+					AND a.provisions_id = #{cashProvisions.id}
+				</if>
+				<if test="cashProvisions.provisionsNo != null and cashProvisions.provisionsNo != ''">
+					AND a.provisions_no = #{cashProvisions.provisionsNo}
+				</if>
+			</if>
+			<if test="payState != null and payState != ''">
+				AND a.pay_state = #{payState}
+			</if>
+			<if test="createBy != null and createBy.id != null and createBy.id != ''">
+				AND a.create_by = #{createBy.id}
+			</if>
+			<if test="beginDate != null and beginDate != ''">
+				AND a.create_date <![CDATA[ >= #{beginDate} ]]>
+			</if>
+			<if test="endDate != null and endDate != ''">
+				AND a.create_date <![CDATA[ <= #{endDate} ]]>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="CashPayRecord">
+		SELECT 
+			<include refid="cashPayRecordColumns"/>
+		FROM cash_pay_record a
+		<include refid="cashPayRecordJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="officeName != null and officeName != ''">
+				AND a.office_name = #{officeName}
+			</if>
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO cash_pay_record(
+			id,
+			provisions_id,
+			pay_money,
+			pay_state,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			office_name
+		) VALUES (
+			#{id},
+			#{cashProvisions.id},
+			#{payMoney},
+			#{payState},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{officeName}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE cash_pay_record SET 	
+			provisions_id = #{cashProvisions.id},
+			pay_money = #{payMoney},
+			pay_state = #{payState},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			office_name = #{officeName}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE cash_pay_record SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

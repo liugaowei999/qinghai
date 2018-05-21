@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.underlytask.dao.BpsSysModuleParamDao">
+    
+	<sql id="bpsSysModuleParamColumns">
+		a.module_id AS "moduleId",
+		a.section_code AS "sectionCode",
+		a.param_code AS "paramCode",
+		a.param_value AS "paramValue",
+		a.note AS "note",
+		b.module_id AS "bpsSysModule.moduleId",
+		b.module_code AS "bpsSysModule.moduleCode",
+		b.module_name AS "bpsSysModule.moduleName",
+		b.program_name AS "bpsSysModule.programName",
+		b.note AS "bpsSysModule.note"
+	</sql>
+	
+	<sql id="bpsSysModuleParamJoins">
+		LEFT JOIN bps_sys_module b ON b.module_id = a.module_id
+	</sql>
+    
+	<select id="get" resultType="BpsSysModuleParam">
+		SELECT 
+			<include refid="bpsSysModuleParamColumns"/>
+		FROM bps_sys_module_param a
+		<include refid="bpsSysModuleParamJoins"/>
+		WHERE a.module_id = #{moduleId} and a.section_code = #{sectionCode} and a.param_code = #{paramCode} 
+	</select>
+	
+	<select id="findList" resultType="BpsSysModuleParam">
+		SELECT 
+			<include refid="bpsSysModuleParamColumns"/>
+		FROM bps_sys_module_param a
+		<include refid="bpsSysModuleParamJoins"/>
+		<where>
+			1 = 1 
+			<if test="moduleId != null and moduleId != ''">
+				AND a.module_id like 
+						<if test="dbName == 'oracle'">'%'||#{moduleId}||'%'</if>
+						<if test="dbName == 'mssql'">'%'+#{moduleId}+'%'</if>
+						<if test="dbName == 'mysql'">CONCAT('%', #{moduleId}, '%')</if>
+			</if>
+			<if test="sectionCode != null and sectionCode != ''">
+				AND a.section_code like 
+						<if test="dbName == 'oracle'">'%'||#{sectionCode}||'%'</if>
+						<if test="dbName == 'mssql'">'%'+#{sectionCode}+'%'</if>
+						<if test="dbName == 'mysql'">CONCAT('%', #{sectionCode}, '%')</if>
+			</if>
+			<if test="paramCode != null and paramCode != ''">
+				AND a.param_code like 
+						<if test="dbName == 'oracle'">'%'||#{paramCode}||'%'</if>
+						<if test="dbName == 'mssql'">'%'+#{paramCode}+'%'</if>
+						<if test="dbName == 'mysql'">CONCAT('%', #{paramCode}, '%')</if>
+			</if>
+			<if test="bpsSysModule != null">
+				<if test="bpsSysModule.moduleName != null and bpsSysModule.moduleName != ''">
+					AND b.module_name like 
+							<if test="dbName == 'oracle'">'%'||#{bpsSysModule.moduleName}||'%'</if>
+							<if test="dbName == 'mssql'">'%'+#{bpsSysModule.moduleName}+'%'</if>
+							<if test="dbName == 'mysql'">CONCAT('%', #{bpsSysModule.moduleName}, '%')</if>
+				</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="BpsSysModuleParam">
+		SELECT 
+			<include refid="bpsSysModuleParamColumns"/>
+		FROM bps_sys_module_param a
+		<include refid="bpsSysModuleParamJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO bps_sys_module_param(
+			module_id,
+			section_code,
+			param_code,
+			param_value,
+			note
+		) VALUES (
+			#{moduleId},
+			#{sectionCode},
+			#{paramCode},
+			#{paramValue},
+			#{note}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE bps_sys_module_param SET 	
+			module_id = #{moduleId},
+			section_code = #{sectionCode},
+			param_code = #{paramCode},
+			param_value = #{paramValue},
+			note = #{note}
+		WHERE module_id = #{moduleId} and section_code = #{sectionCode} and param_code = #{paramCode} 
+	</update>
+	
+	<update id="delete">
+		DELETE FROM bps_sys_module_param
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

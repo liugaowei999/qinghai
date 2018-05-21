@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.reports.dao.SettStatReportDao">
+    
+	<sql id="settStatReportColumns">
+		o.id AS "company.id",
+		o.name AS "company.name",
+		o.parent_ids AS "company.parentIds",
+		a.sett_type AS "settType",
+		a.sett_date AS "settDate",
+		a.org_code AS "orgCode",
+		a.org_name AS "orgName",
+		nvl(a.income_charge,0.0) AS "incomeCharge",
+		nvl(a.outcome_charge,0.0) AS "outcomeCharge",
+		nvl(a.offset_balance,0.0) AS "offsetBalance",
+		a.note AS "note"
+	</sql>
+	
+	<sql id="settStatReportJoins">
+		LEFT JOIN sys_office o ON o.id = a.org_code  and o.del_flag='0' and o.useable='1'
+	</sql>
+    
+	<select id="get" resultType="SettStatReport">
+		SELECT 
+			<include refid="settStatReportColumns"/>
+		FROM sett_stat_report a
+		<include refid="settStatReportJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SettStatReport">
+		SELECT 
+			<include refid="settStatReportColumns"/>
+		FROM sett_stat_report a
+		<include refid="settStatReportJoins"/>
+		<where>
+			<if test="settType != null and settType != ''">
+				AND a.sett_type = #{settType}
+			</if>
+			<if test="beginSettDate != null and endSettDate != null and beginSettDate != '' and endSettDate != ''">
+				AND a.sett_date BETWEEN #{beginSettDate} AND #{endSettDate}
+			</if>
+			<if test="company != null and company.id != null and company.id != ''">
+				AND (o.id = #{company.id} OR o.parent_ids LIKE '%,'||#{company.id}||',%')
+			</if>
+			<if test="sqlMap != null and sqlMap.dsf != null and sqlMap.dsf != ''">
+				<!-- 数据范围过滤 -->
+				${sqlMap.dsf}
+			</if>
+		</where>
+		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				order by a.sett_date desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SettStatReport">
+		SELECT 
+			<include refid="settStatReportColumns"/>
+		FROM sett_stat_report a
+		<include refid="settStatReportJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sett_stat_report(
+			sett_type,
+			sett_date,
+			org_code,
+			org_name,
+			income_charge,
+			outcome_charge,
+			offset_balance,
+			note
+		) VALUES (
+			#{settType},
+			#{settDate},
+			#{orgCode},
+			#{orgName},
+			#{incomeCharge},
+			#{outcomeCharge},
+			#{offsetBalance},
+			#{note}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sett_stat_report SET 	
+			sett_type = #{settType},
+			sett_date = #{settDate},
+			org_code = #{orgCode},
+			org_name = #{orgName},
+			income_charge = #{incomeCharge},
+			outcome_charge = #{outcomeCharge},
+			offset_balance = #{offsetBalance},
+			note = #{note}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM sett_stat_report
+		WHERE id = #{id}
+	</update>
+	<select id="orgCodeViewChart" resultType="java.util.HashMap">
+		select a.org_code as "orgCode",
+		       a.org_name as "orgName",
+		       sum(a.income_charge) as "incomeCharge",
+		       sum(a.outcome_charge) as "outcomeCharge",
+		       sum(a.offset_balance) as "offsetBalance"
+		  from sett_stat_report a 
+		  <include refid="settStatReportJoins"/>
+		 <where>
+		     <if test="settDate != null and settDate != ''">
+		        AND substr(a.sett_date, 0, 6) = #{settDate}
+		     </if>
+		 	<if test="settType != null and settType != ''">
+				AND a.sett_type = #{settType}
+			</if>
+			<if test="sqlMap != null and sqlMap.dsf != null and sqlMap.dsf != ''">
+				<!-- 数据范围过滤 -->
+				${sqlMap.dsf}
+			</if> 
+		 </where> 
+		 group by a.org_code, a.org_name
+	</select>
+	<select id="settTypeViewChart" resultType="java.util.HashMap">
+		select a.sett_type as "settType",
+               b.label as "settTypeName",
+		       sum(a.income_charge) as "incomeCharge",
+		       sum(a.outcome_charge) as "outcomeCharge",
+		       sum(a.offset_balance) as "offsetBalance"
+		  from sett_stat_report a
+		  <include refid="settStatReportJoins"/>,
+		  sys_dict b 
+		  <where>
+      		 b.type='sett_type'
+      	   and a.sett_type = b.value
+      	   and substr(a.sett_date,0,6) = #{settDate}
+      	   <!-- 数据范围过滤 -->
+      	   <if test="sqlMap != null and sqlMap.dsf != null and sqlMap.dsf != ''">
+				<!-- 数据范围过滤 -->
+				${sqlMap.dsf}
+			</if>
+		 </where>
+		 group by a.sett_type,b.label order by a.sett_type
+	</select>
+	<select id="stMViewChart" resultType="java.util.HashMap">
+		select substr(a.sett_date, 0, 6) as "settDate",
+		        sum(a.income_charge) as "incomeCharge",
+		        sum(a.outcome_charge) as "outcomeCharge",
+		        sum(a.offset_balance) as "offsetBalance"
+		  from sett_stat_report a 
+		  <include refid="settStatReportJoins"/>
+		 <where>
+		     <if test="settDate != null and settDate != ''">
+		        AND substr(a.sett_date, 0, 4) = #{settDate}
+		     </if>
+		 	<if test="settType != null and settType != ''">
+				AND a.sett_type = #{settType}
+			</if> 
+			<if test="sqlMap != null and sqlMap.dsf != null and sqlMap.dsf != ''">
+				<!-- 数据范围过滤 -->
+				${sqlMap.dsf}
+			</if>
+		 </where> 
+		 group by substr(a.sett_date, 0, 6)
+	</select>
+	<select id="ocMViewChart" resultType="java.util.HashMap">
+		select substr(a.sett_date, 0, 6) as "settDate",
+		        sum(a.income_charge) as "incomeCharge",
+		        sum(a.outcome_charge) as "outcomeCharge",
+		        sum(a.offset_balance) as "offsetBalance"
+		  from sett_stat_report a 
+		  <include refid="settStatReportJoins"/>
+		 <where>
+		     <if test="settDate != null and settDate != ''">
+		        AND substr(a.sett_date, 0, 4) = #{settDate}
+		     </if>
+		 	<if test="orgCode != null and orgCode != ''">
+				AND a.org_code = #{orgCode}
+			</if>
+			<if test="settType != null and settType != ''">
+				AND a.sett_type = #{settType}
+			</if> 
+			<if test="sqlMap != null and sqlMap.dsf != null and sqlMap.dsf != ''">
+				<!-- 数据范围过滤 -->
+				${sqlMap.dsf}
+			</if>
+		 </where>
+		 group by substr(a.sett_date, 0, 6)
+	</select>
+	
+	<select id="orgCodeSumViewChart" resultType="java.util.HashMap">
+		select substr(a.sett_date, 0, 6) as settDate,
+		        sum(a.income_charge) as "incomeCharge",
+		        sum(a.outcome_charge) as "outcomeCharge",
+		        sum(a.offset_balance) as "offsetBalance"
+		  from sett_stat_report a 
+		   <include refid="settStatReportJoins"/>
+		 <where>
+		     <if test="settDate != null and settDate != ''">
+		        AND substr(a.sett_date, 0, 6) = #{settDate}
+		     </if>
+		 	<if test="settType != null and settType != ''">
+				AND a.sett_type = #{settType}
+			</if> 
+			<if test="sqlMap != null and sqlMap.dsf != null and sqlMap.dsf != ''">
+				<!-- 数据范围过滤 -->
+				${sqlMap.dsf}
+			</if>
+		 </where> 
+		 group by substr(a.sett_date, 0, 6)
+	</select>
+	<select id="findSettTypeList" resultType="java.util.HashMap">
+		select distinct a.sett_type as "value", 
+		       b.label as "label"
+		  from sett_stat_report a <include refid="settStatReportJoins"/>, sys_dict b
+		 <where> 
+		 	b.type = 'sett_type'
+		   and a.sett_type = b.value
+		   <if test="sqlMap != null and sqlMap.dsf != null and sqlMap.dsf != ''">
+				<!-- 数据范围过滤 -->
+				${sqlMap.dsf}
+			</if>
+		</where>
+	</select>
+	<select id="findOrgCodeList" resultType="java.util.HashMap">
+		select distinct a.org_code as "orgCode", 
+		       a.org_name as "orgName"
+		  from sett_stat_report a <include refid="settStatReportJoins"/>
+		  <where>
+		  	  <if test="sqlMap != null and sqlMap.dsf != null and sqlMap.dsf != ''">
+				<!-- 数据范围过滤 -->
+				${sqlMap.dsf}
+			</if>
+		  </where> 
+	</select>
+	<select id="settStatReportOutProvSum" resultType="SettStatReport">
+		select 
+		       sum(a.income_charge) as "incomeCharge",
+		       sum(a.outcome_charge) as "outcomeCharge",
+		       sum(a.offset_balance) as "offsetBalance"
+		  from sett_stat_report a 
+		  <include refid="settStatReportJoins"/>
+		<where>
+			<if test="settType != null and settType != ''">
+				AND a.sett_type = #{settType}
+			</if>
+			<if test="beginSettDate != null and endSettDate != null and beginSettDate != '' and endSettDate != ''">
+				AND a.sett_date BETWEEN #{beginSettDate} AND #{endSettDate}
+			</if>
+			<if test="company != null and company.id != null and company.id != ''">
+				AND (o.id = #{company.id} OR o.parent_ids LIKE '%,'||#{company.id}||',%'),
+			</if>
+		</where>
+	</select>
+	
+	<select id="settStatReportInProvSum" resultType="SettStatReport">
+		select 
+		       sum(a.income_charge) as "incomeCharge",
+		       sum(a.outcome_charge) as "outcomeCharge",
+		       sum(a.offset_balance) as "offsetBalance"
+		  from sett_stat_report a 
+		  <include refid="settStatReportJoins"/>
+		<where>
+			<if test="settType != null and settType != ''">
+				AND a.sett_type = #{settType}
+			</if>
+			<if test="beginSettDate != null and endSettDate != null and beginSettDate != '' and endSettDate != ''">
+				AND a.sett_date BETWEEN #{beginSettDate} AND #{endSettDate}
+			</if>
+			<if test="company != null and company.id != null and company.id != ''">
+				AND (o.id = #{company.id} OR o.parent_ids LIKE '%,'||#{company.id}||',%')
+			</if>
+		</where>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}
+	</select>
+</mapper>

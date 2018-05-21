@@ -1,0 +1,162 @@
+*{
+	padding: 0;
+	margin: 0;
+	font-family: "Microsoft YaHei"
+}
+body{padding:0px;margin:0px} 
+.clearfix:before,
+.clearfix:after {
+    content: " ";
+    display: table;
+}
+.clearfix:after {
+    clear: both;
+}
+.clearfix{
+	zoom: 1;
+}
+html{width:100%;height:100%}
+.top-search {
+	min-width: 940px;
+	background-color: #ebebeb;
+}
+.top-search .search-inner {
+	width: 940px;
+	height: 45px;
+	margin: 0 auto;
+}
+.top-search .search-inner .search-left {
+	line-height: 45px;
+	float: left;
+}
+.top-search .search-inner .search-left a{
+	text-decoration: none;
+	font-size: 12px;
+	color: #666666;
+}
+.top-search .search-inner .search-left a.setPage {
+	margin-right: 28px;
+}
+.top-search .search-inner .search-right {
+	float: right;
+	margin-top:10px;
+	position: relative;
+}
+.top-search .search-inner .search-right .searchBox {
+	width: 172px;
+	height: 24px;
+	border: 1px solid #ccc;
+	padding:0 0 !important;
+}
+.top-search .search-inner .search-right img {
+	position: absolute;
+	right: 9px;
+	top: 7px;
+	cursor:pointer;
+}
+.solnav {
+	min-width: 940px;
+	clear: both;
+}
+.solnav .nav-inner {
+	width: 940px;
+	height: 87px;
+	margin: 0 auto;
+}
+.solnav .nav-inner .logoBox {
+	float: left;
+	width: 42%;
+}
+.solnav .nav-inner .logoBox img {
+	float: left;
+}
+.solnav .nav-inner .logoBox .logo {
+	padding-top: 21px;
+}
+.solnav .nav-inner .logoBox .line {
+	padding: 28px 22px 0px 22px;
+}
+.solnav .nav-inner .logoBox .logo-1 {
+	padding-top: 35px;
+}
+.solnav .nav-inner .meau {
+	float: left;
+	width: 58%;
+	margin:0px 0px 0px 0px !important;
+}
+.solnav .nav-inner .meau li {
+	list-style: none;
+}
+.solnav .nav-inner .meau li.list {
+	width: 109px;
+	line-height:87px;
+	float: left;
+	text-align: center;
+	position: relative;
+}
+.solnav .nav-inner .meau li a {
+	color: #589ed6;
+	font-size: 18px;
+	text-decoration: none;
+}
+.solnav .nav-inner .meau .list .line-1 {
+	position: absolute;
+	left: 0px;
+	top: -2px;
+	display: none;
+}
+.solnav .nav-inner .meau .list .san {
+	display: none;  
+	position: absolute;
+	left: 52px;
+	bottom: 21px;
+}
+.solnav .nav-inner .meau .list ul {
+ 	display: none;   
+	position: absolute;
+	top:67px;
+	background-color: rgba(255,255,255,0.8);  
+	width: 109px;
+	margin:0px 0px 0px 0px !important;
+	z-index:6;
+}
+.solnav .nav-inner .meau .list ul li{
+	line-height: 34px;
+	height: 34px;
+	width: 109px;
+	cursor:pointer;
+	color: #0080cb;
+	font-size:14px;
+}
+.main {
+	min-width: 940px;
+}
+.main .main-inner {
+	width: 940px;
+	height: 455px;
+	margin: 0 auto;
+}
+.footer {
+	min-width: 940px;
+}
+.footer .footer-inner {
+	width: 940px;
+	background-color: #f3f3f3;
+	margin: 0 auto;
+	text-align: center;
+	font-size: 12px;
+	color: #666666;
+	overflow: hidden;
+	margin-top:10px;
+}
+.footer .footer-inner .footer-top {
+	margin-top: 15px;
+	margin-bottom: 10px;
+}
+.footer .footer-inner a:active,
+.footer .footer-inner a:hover {
+	color:#589ed6
+}
+.footer .footer-inner .footer-bottom {
+	margin-bottom: 15px;
+}

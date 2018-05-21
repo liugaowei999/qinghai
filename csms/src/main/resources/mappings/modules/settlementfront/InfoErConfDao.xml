@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.settlementfront.dao.InfoErConfDao">
+    
+	<sql id="infoErConfColumns">
+		a.down_date AS "downDate",
+		a.file_name AS "fileName",
+		a.err_code AS "errCode",
+		a.err_info AS "errInfo",
+		a.deal_time AS "dealTime",
+		a.indb_time AS "indbTime"
+	</sql>
+	
+	<sql id="infoErConfJoins">
+	</sql>
+    
+	<select id="get" resultType="infoErConf">
+		SELECT 
+			<include refid="infoErConfColumns"/>
+		FROM info_er_conf a
+		<include refid="infoErConfJoins"/>
+	</select>
+	
+	<select id="findList" resultType="infoErConf">
+		SELECT 
+			<include refid="infoErConfColumns"/>
+		FROM info_er_conf a
+		<include refid="infoErConfJoins"/>
+		<where>
+			
+			<if test="downDate != null and downDate != ''">
+				AND a.down_date = #{downDate}
+			</if>
+			<if test="fileName != null and fileName != ''">
+				AND a.file_name like '%'||#{fileName}||'%'
+			</if>
+			<if test="errCode != null and errCode != ''">
+				AND a.err_code = #{errCode}
+			</if>
+			<if test="errInfo != null and errInfo != ''">
+				AND a.err_info = #{errInfo}
+			</if>
+			<if test="dealTime != null and dealTime != ''">
+				AND a.deal_time = #{dealTime}
+			</if>
+			<if test="indbTime != null and indbTime != ''">
+				AND a.indb_time = #{indbTime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy},a.down_date desc
+			</when>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="infoErConf">
+		SELECT 
+			<include refid="infoErConfColumns"/>
+		FROM info_er_conf a
+		<include refid="infoErConfJoins"/>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy},a.down_date desc
+			</when>
+		</choose>
+	</select>
+	
+	
+	
+</mapper>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.settlementfront.dao.BpsFiletransLogDao">
+    
+	<sql id="bpsFiletransLogColumns">
+		a.module_id AS "moduleId",
+		a.file_name AS "fileName",
+		a.file_size AS "fileSize",
+		a.is_sucess AS "isSucess",
+		a.process_time AS "processTime",
+		a.isup AS "isup",
+		a.trans_size AS "transSize",
+		a.remark AS "remark"
+	</sql>
+	
+	<sql id="bpsFiletransLogJoins">
+	</sql>
+    
+	
+	<select id="findList" resultType="BpsFiletransLog">
+		SELECT 
+			<include refid="bpsFiletransLogColumns"/>
+		FROM ${tableName} a
+		<include refid="bpsFiletransLogJoins"/>
+		<where>
+			<if test="fileName != null and fileName != ''">
+				AND a.file_name like 
+					<if test="dbName == 'oracle'">'%'||#{fileName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{fileName}+'%'</if>
+					<if test="dbName == 'mysql'">CONCAT('%', #{fileName}, '%')</if>
+			</if>
+		
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- <select id="findAllList" resultType="BpsFiletransLog">
+		SELECT 
+			<include refid="bpsFiletransLogColumns"/>
+		FROM bps_filetrans_log_201612 a
+		<include refid="bpsFiletransLogJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO bps_filetrans_log_201612(
+			module_id,
+			file_name,
+			file_size,
+			is_sucess,
+			process_time,
+			isup,
+			trans_size,
+			remark
+		) VALUES (
+			#{moduleId},
+			#{fileName},
+			#{fileSize},
+			#{isSucess},
+			#{processTime},
+			#{isup},
+			#{transSize},
+			#{remark}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE bps_filetrans_log_201612 SET 	
+			module_id = #{moduleId},
+			file_name = #{fileName},
+			file_size = #{fileSize},
+			is_sucess = #{isSucess},
+			process_time = #{processTime},
+			isup = #{isup},
+			trans_size = #{transSize},
+			remark = #{remark}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM bps_filetrans_log_201612
+		WHERE id = #{id}
+	</update> -->
+	
+</mapper>

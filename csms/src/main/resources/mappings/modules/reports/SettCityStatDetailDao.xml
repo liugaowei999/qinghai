@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.reports.dao.SettCityStatDetailDao">
+    
+	<sql id="settCityStatDetailColumns">
+		o.id AS "company.id",
+		o.name AS "company.name",
+		o.parent_ids AS "company.parentIds",
+		a.sett_date AS "settDate",
+		a.sett_org_code AS "settOrgCode",
+		a.sett_direction AS "settDirection",
+		a.role_type AS "roleType",
+		a.issue_code AS "issueCode",
+		a.issue_org_name AS "issueOrgName",
+		a.bill_code AS "billCode",
+		a.bill_org_name AS "billOrgName",
+		nvl(a.trade_charge,0.0) AS "tradeCharge",
+		nvl(a.service_fee,0.0) AS "serviceFee",
+		nvl(a.issue_charge,0.0) AS "issueCharge",
+		nvl(a.bill_charge,0.0) AS "billCharge",
+		nvl(a.center_charge,0.0) AS "centerCharge",
+		nvl(a.sett_charge,0.0) AS "settCharge",
+		a.actual_issue_code AS "actualIssueCode",
+		a.actual_issue_name AS "actualIssueName",
+		a.times as "times"
+	</sql>
+	
+	<sql id="settCityStatDetailJoins">
+		LEFT JOIN sys_office o ON o.id = a.sett_org_code  and o.del_flag='0' and o.useable='1'
+	</sql>
+    
+	<select id="get" resultType="SettCityStatDetail">
+		SELECT 
+			<include refid="settCityStatDetailColumns"/>
+		FROM sett_city_stat_detail a
+		<include refid="settCityStatDetailJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SettCityStatDetail">
+		SELECT 
+			<include refid="settCityStatDetailColumns"/>
+		FROM sett_city_stat_detail a
+		<include refid="settCityStatDetailJoins"/>
+		<where>
+			
+			<if test="beginSettDate != null and endSettDate != null and beginSettDate != '' and endSettDate != ''">
+				AND a.sett_date BETWEEN #{beginSettDate} AND #{endSettDate}
+			</if>
+			<if test="settDirection != null and settDirection != ''">
+				AND a.sett_direction = #{settDirection}
+			</if>
+			<if test="roleType != null and roleType != ''">
+				AND a.role_type = #{roleType}
+			</if>
+			<if test="issueOrgName != null and issueOrgName != ''">
+				AND a.issue_org_name = #{issueOrgName}
+			</if>
+			<if test="billOrgName != null and billOrgName != ''">
+				AND a.bill_org_name = #{billOrgName}
+			</if>
+			<if test="company != null and company.id != null and company.id != ''">
+				AND (o.id = #{company.id} OR o.parent_ids LIKE '%,'||#{company.id}||',%')
+			</if>
+		</where>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SettCityStatDetail">
+		SELECT 
+			<include refid="settCityStatDetailColumns"/>
+		FROM sett_city_stat_detail a
+		<include refid="settCityStatDetailJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sett_city_stat_detail(
+			sett_date,
+			sett_org_code,
+			sett_direction,
+			role_type,
+			issue_code,
+			issue_org_name,
+			bill_code,
+			bill_org_name,
+			trade_charge,
+			service_fee,
+			issue_charge,
+			bill_charge,
+			center_charge,
+			sett_charge
+		) VALUES (
+			#{settDate},
+			#{settOrgCode},
+			#{settDirection},
+			#{roleType},
+			#{issueCode},
+			#{issueOrgName},
+			#{billCode},
+			#{billOrgName},
+			#{tradeCharge},
+			#{serviceFee},
+			#{issueCharge},
+			#{billCharge},
+			#{centerCharge},
+			#{settCharge}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sett_city_stat_detail SET 	
+			sett_date = #{settDate},
+			sett_org_code = #{settOrgCode},
+			sett_direction = #{settDirection},
+			role_type = #{roleType},
+			issue_code = #{issueCode},
+			issue_org_name = #{issueOrgName},
+			bill_code = #{billCode},
+			bill_org_name = #{billOrgName},
+			trade_charge = #{tradeCharge},
+			service_fee = #{serviceFee},
+			issue_charge = #{issueCharge},
+			bill_charge = #{billCharge},
+			center_charge = #{centerCharge},
+			sett_charge = #{settCharge}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM sett_city_stat_detail
+		WHERE id = #{id}
+	</update>
+	
+	<select id="billCodeViewChart" resultType="java.util.HashMap">
+		select  a.bill_code as "billCode",
+		        a.bill_org_name as "billOrgName",
+		       sum(a.trade_charge) as "tradeCharge",
+		       sum(a.service_fee) as "serviceFee",
+		       sum(a.issue_charge) as "issueCharge",
+		        sum(a.bill_charge) as "billCharge",
+		       sum(a.center_charge) as "centerCharge",
+		       sum(a.sett_charge) as "settCharge"
+		  from sett_city_stat_detail a
+		 <include refid="settCityStatDetailJoins"/>
+		 where  substr(a.sett_date,0,6) = #{settDate}
+		  <!-- 数据范围过滤 -->
+		 ${sqlMap.dsf} 
+		 group by a.bill_code,a.bill_org_name
+	</select>
+	<select id="issueCodeViewChart" resultType="java.util.HashMap">
+		select  a.issue_code as "issueCode",
+		        a.issue_org_name as "issueOrgName",
+		       sum(a.trade_charge) as "tradeCharge",
+		       sum(a.service_fee) as "serviceFee",
+		       sum(a.issue_charge) as "issueCharge",
+		        sum(a.bill_charge) as "billCharge",
+		       sum(a.center_charge) as "centerCharge",
+		       sum(a.sett_charge) as "settCharge"
+		  from sett_city_stat_detail a 
+		   <include refid="settCityStatDetailJoins"/>
+		 where  substr(a.sett_date,0,6) = #{settDate}
+		  <!-- 数据范围过滤 -->
+		 ${sqlMap.dsf} 
+		 group by a.issue_code,a.issue_org_name
+	</select>
+	<select id="issueCodeLineChart" resultType="java.util.HashMap">
+		select substr(a.sett_date, 0, 6) as "settDate",
+		       sum(a.trade_charge) as "tradeCharge",
+		       sum(a.service_fee) as "serviceFee",
+		       sum(a.issue_charge) as "issueCharge",
+		        sum(a.bill_charge) as "billCharge",
+		       sum(a.center_charge) as "centerCharge",
+		       sum(a.sett_charge) as "settCharge"
+		  from sett_city_stat_detail a
+		  <include refid="settCityStatDetailJoins"/>
+		 <where>
+		     <if test="settDate != null and settDate != ''">
+		        AND substr(a.sett_date, 0, 4) = #{settDate}
+		     </if>
+		 	<if test="issueCode != null and issueCode != ''">
+				AND a.issue_Code = #{issueCode}
+			</if>
+		 </where>
+		 <!-- 数据范围过滤 -->
+		 ${sqlMap.dsf} 
+		 group by substr(a.sett_date, 0, 6)
+	</select>
+	<select id="billCodeLineChart" resultType="java.util.HashMap">
+		select substr(a.sett_date, 0, 6) as "settDate",
+		       sum(a.trade_charge) as "tradeCharge",
+		       sum(a.service_fee) as "serviceFee",
+		       sum(a.issue_charge) as "issueCharge",
+		        sum(a.bill_charge) as "billCharge",
+		       sum(a.center_charge) as "centerCharge",
+		       sum(a.sett_charge) as "settCharge"
+		  from sett_city_stat_detail a
+		  <include refid="settCityStatDetailJoins"/>
+		 <where>
+		     <if test="settDate != null and settDate != ''">
+		        AND substr(a.sett_date, 0, 4) = #{settDate}
+		     </if>
+		 	<if test="billCode != null and billCode != ''">
+				AND a.bill_Code = #{billCode}
+			</if>
+		 </where>
+		 <!-- 数据范围过滤 -->
+		 ${sqlMap.dsf} 
+		 group by substr(a.sett_date, 0, 6)
+	</select>
+	<select id="billCodeSumViewChart" resultType="java.util.HashMap">
+		select  ''||a.sett_direction as "settDirection",
+		        b.label as "settDirectionName",
+		       sum(a.trade_charge) as "tradeCharge",
+		       sum(a.service_fee) as "serviceFee",
+		       sum(a.issue_charge) as "issueCharge",
+		        sum(a.bill_charge) as "billCharge",
+		       sum(a.center_charge) as "centerCharge",
+		       sum(a.sett_charge) as "settCharge"
+		  from sett_city_stat_detail a <include refid="settCityStatDetailJoins"/>, sys_dict b 
+		 where b.type='sett_direction'
+		      	   and a.sett_direction = b.value
+		      	   and substr(a.sett_date,0,6) = #{settDate}
+		 <!-- 数据范围过滤 -->
+		 ${sqlMap.dsf}   	   
+		 group by a.sett_direction, b.label
+		
+	</select>
+	<select id="findBillOrgCode" resultType="java.util.HashMap">
+		select distinct a.bill_code AS "billCode",
+			   a.bill_org_name AS "billOrgName"
+		  from sett_city_stat_detail a <include refid="settCityStatDetailJoins"/>
+		  where 1=1
+				${sqlMap.dsf}
+	</select>
+	<select id="findIssueOrgCode" resultType="java.util.HashMap">
+		select distinct a.issue_code AS "issueCode",
+		a.issue_org_name AS "issueOrgName"
+		  from sett_city_stat_detail a <include refid="settCityStatDetailJoins"/>
+		  where 1=1 
+				<!-- 数据范围过滤 -->
+				${sqlMap.dsf}
+	</select>
+	<select id="settCityStatDetailSum" resultType="settCityStatDetail">
+		select  
+		       sum(a.trade_charge) as "tradeCharge",
+		       sum(a.service_fee) as "serviceFee",
+		       sum(a.issue_charge) as "issueCharge",
+		       sum(a.bill_charge) as "billCharge",
+		       sum(a.center_charge) as "centerCharge",
+		       sum(a.sett_charge) as "settCharge",
+		       sum(a.times) as "times"
+		 FROM sett_city_stat_detail a
+		<include refid="settCityStatDetailJoins"/>
+		<where>
+			
+			<if test="beginSettDate != null and endSettDate != null and beginSettDate != '' and endSettDate != ''">
+				AND a.sett_date BETWEEN #{beginSettDate} AND #{endSettDate}
+			</if>
+			<if test="settDirection != null and settDirection != ''">
+				AND a.sett_direction = #{settDirection}
+			</if>
+			<if test="roleType != null and roleType != ''">
+				AND a.role_type = #{roleType}
+			</if>
+			<if test="issueOrgName != null and issueOrgName != ''">
+				AND a.issue_org_name = #{issueOrgName}
+			</if>
+			<if test="billOrgName != null and billOrgName != ''">
+				AND a.bill_org_name = #{billOrgName}
+			</if>
+			<if test="company != null and company.id != null and company.id != ''">
+				AND (o.id = #{company.id} OR o.parent_ids LIKE '%,'||#{company.id}||',%')
+			</if>
+		</where>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}
+	</select>
+</mapper>

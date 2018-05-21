@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.cash.dao.CashProvisionsDao">
+    
+	<sql id="cashProvisionsColumns">
+		o.name As "company.name",
+		o.id As "company.id",
+		o.parent_ids As "company.parentIds",
+		u.login_name As "user.loginName",
+		a.id AS "id",
+		a.provisions_no AS "provisionsNo",
+		a.bankcard_no AS "bankcardNo",
+		a.pay_period AS "payPeriod",
+		a.deposite AS "deposite",
+		a.total_amount AS "totalAmount",
+		a.remaining_sum AS "remainingSum",
+		a.withdraw_deposite AS "withdrawDeposite",
+		a.need_pay AS "needPay",
+		a.user_id AS "userId",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="cashProvisionsJoins">
+		LEFT JOIN sys_user u ON u.id = a.user_id and u.del_flag='0'
+		LEFT JOIN sys_office o ON o.id = u.company_id and o.del_flag='0' and o.useable='1'
+	</sql>
+    
+	<select id="get" resultType="CashProvisions">
+		SELECT 
+			<include refid="cashProvisionsColumns"/>
+		FROM cash_provisions a
+		<include refid="cashProvisionsJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="CashProvisions">
+		SELECT 
+			<include refid="cashProvisionsColumns"/>
+		FROM cash_provisions a
+		<include refid="cashProvisionsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="provisionsNo != null and provisionsNo != ''">
+				AND a.provisions_no = #{provisionsNo}
+			</if>
+			<if test="bankcardNo != null and bankcardNo != ''">
+				AND a.bankcard_no = #{bankcardNo}
+			</if>
+			<if test="company != null and company.id != null and company.id != ''">
+				AND (o.id = #{company.id} OR o.parent_ids LIKE '%,'||#{company.id}||',%')
+			</if>
+		</where>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="CashProvisions">
+		SELECT 
+			<include refid="cashProvisionsColumns"/>
+		FROM cash_provisions a
+		<include refid="cashProvisionsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO cash_provisions(
+			id,
+			provisions_no,
+			bankcard_no,
+			pay_period,
+			deposite,
+			total_amount,
+			remaining_sum,
+			withdraw_deposite,
+			need_pay,
+			user_id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			cash_prov_id_seq.nextval,  
+  			'QHBFJ'||to_char(sysdate,'yyyymmdd')||lpad(cash_prov_id_seq.nextval,7,0), 
+			#{bankcardNo},
+			#{payPeriod},
+			#{deposite},
+			#{totalAmount},
+			#{remainingSum},
+			#{withdrawDeposite}, 
+			#{needPay},
+      		#{userId} ,
+      		#{createBy.id},    
+      		sysdate,    
+      		#{updateBy.id},    
+      		sysdate,    
+      		#{remarks},
+      		#{DEL_FLAG_NORMAL} 
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE cash_provisions SET 	
+			bankcard_no = #{bankcardNo},
+			pay_period = #{payPeriod},
+			remarks = #{remarks},
+			update_by = #{updateBy.id},
+			update_date = sysdate
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateAmount">
+		UPDATE cash_provisions 
+		<set>
+			<if test="totalAmount != null and totalAmount != ''">
+				total_amount=total_amount + #{totalAmount},
+			</if>
+			<if test="remainingSum != null and remainingSum != ''">
+				remaining_sum = remaining_sum + #{remainingSum},
+			</if>
+			<if test="withdrawDeposite != null and withdrawDeposite != ''">
+				withdraw_deposite = decode(sign(withdraw_deposite + #{withdrawDeposite}),1,withdraw_deposite + #{withdrawDeposite},0),
+			</if>	
+			<if test="needPay != null and needPay != ''">
+				need_pay = need_pay + #{needPay}
+			</if>	
+		</set>
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateAfterPay" parameterType="map">
+		UPDATE cash_provisions SET 	
+			withdraw_deposite = decode(sign(remaining_sum - need_pay),1,remaining_sum - need_pay,0)
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE cash_provisions SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

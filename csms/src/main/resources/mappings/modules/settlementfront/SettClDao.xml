@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.settlementfront.dao.SettClDao">
+    
+	<sql id="settClColumns">
+		o.id AS "company.id",
+		o.name AS "company.name",
+		o.parent_ids AS "company.parentIds",
+		a.sett_date AS "settDate",
+		a.recv_org_code AS "recvOrgCode",
+		a.file_name AS "fileName",
+		a.sett_org_no AS "settOrgNo",
+		a.bill_org_no AS "billOrgNo",
+		a.bill_deal_date AS "billDealDate",
+		a.retriev_no AS "retrievNo",
+		a.trade_type AS "tradeType",
+		a.bill_org_id AS "billOrgId",
+		a.bill_org_code AS "billOrgCode",
+		a.issue_company_code AS "issueCompanyCode",
+		a.recv_org_code1 AS "recvOrgCode1",
+		a.send_org_id AS "sendOrgId",
+		a.mcc AS "mcc",
+		a.channel_type AS "channelType",
+		a.card_no AS "cardNo",
+		a.card_count AS "cardCount",
+		a.beforetrade_charge AS "beforetradeCharge",
+		a.trade_charge AS "tradeCharge",
+		a.trade_date AS "tradeDate",
+		a.trade_time AS "tradeTime",
+		a.balance_type AS "balanceType",
+		a.algorithm_id AS "algorithmId",
+		a.err_code AS "errCode",
+		a.err_info AS "errInfo",
+		a.test_flag AS "testFlag",
+		a.sett_charge AS "settCharge",
+		a.issue_charge AS "issueCharge",
+		a.bill_charge AS "billCharge",
+		a.reserved AS "reserved",
+		a.tlv_data AS "tlvData",
+		a.deal_time AS "dealTime",
+		a.indb_time AS "indbTime",
+		a.id AS "id"
+	</sql>
+	
+	<sql id="settClJoins">
+		LEFT JOIN sys_office o ON o.id = a.recv_org_code  and o.del_flag='0' and o.useable='1'
+	</sql>
+    
+	<select id="get" resultType="SettCl">
+		SELECT 
+			<include refid="settClColumns"/>
+		FROM ${tableName} a
+		<include refid="settClJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SettCl">
+		SELECT 
+			<include refid="settClColumns"/>
+		FROM ${tableName} a
+		<include refid="settClJoins"/>
+		<where>
+			1=1
+			<if test="company != null and company.id != null and company.id != ''">
+				AND (o.id = #{company.id} OR o.parent_ids LIKE '%,'||#{company.id}||',%')
+			</if>
+			<if test="issueCompanyCode != null and issueCompanyCode != ''">
+				AND substr(issue_company_code,1,7)= #{issueCompanyCode}
+			</if>
+			<if test="billOrgCode != null and billOrgCode != ''">
+				AND substr(bill_org_code,1,7)= #{billOrgCode}
+			</if>
+			<if test="cardNo != null and cardNo != ''">
+				AND card_no= #{cardNo}
+			</if>
+		</where>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				order by a.sett_date desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SettCl">
+		SELECT 
+			<include refid="settClColumns"/>
+		FROM ${tableName} a
+		<include refid="settClJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ${tableName}(
+			sett_date,
+			recv_org_code,
+			file_name,
+			sett_org_no,
+			bill_org_no,
+			bill_deal_date,
+			retriev_no,
+			trade_type,
+			bill_org_id,
+			bill_org_code,
+			issue_company_code,
+			recv_org_code1,
+			send_org_id,
+			mcc,
+			channel_type,
+			card_no,
+			card_count,
+			beforetrade_charge,
+			trade_charge,
+			trade_date,
+			trade_time,
+			balance_type,
+			algorithm_id,
+			err_code,
+			err_info,
+			test_flag,
+			sett_charge,
+			issue_charge,
+			bill_charge,
+			reserved,
+			tlv_data,
+			deal_time,
+			indb_time,
+			id
+		) VALUES (
+			#{settDate},
+			#{recvOrgCode},
+			#{fileName},
+			#{settOrgNo},
+			#{billOrgNo},
+			#{billDealDate},
+			#{retrievNo},
+			#{tradeType},
+			#{billOrgId},
+			#{billOrgCode},
+			#{issueCompanyCode},
+			#{recvOrgCode1},
+			#{sendOrgId},
+			#{mcc},
+			#{channelType},
+			#{cardNo},
+			#{cardCount},
+			#{beforetradeCharge},
+			#{tradeCharge},
+			#{tradeDate},
+			#{tradeTime},
+			#{balanceType},
+			#{algorithmId},
+			#{errCode},
+			#{errInfo},
+			#{testFlag},
+			#{settCharge},
+			#{issueCharge},
+			#{billCharge},
+			#{reserved},
+			#{tlvData},
+			#{dealTime},
+			#{indbTime},
+			#{id}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ${tableName} SET 	
+			sett_date = #{settDate},
+			recv_org_code = #{recvOrgCode},
+			file_name = #{fileName},
+			sett_org_no = #{settOrgNo},
+			bill_org_no = #{billOrgNo},
+			bill_deal_date = #{billDealDate},
+			retriev_no = #{retrievNo},
+			trade_type = #{tradeType},
+			bill_org_id = #{billOrgId},
+			bill_org_code = #{billOrgCode},
+			issue_company_code = #{issueCompanyCode},
+			recv_org_code1 = #{recvOrgCode1},
+			send_org_id = #{sendOrgId},
+			mcc = #{mcc},
+			channel_type = #{channelType},
+			card_no = #{cardNo},
+			card_count = #{cardCount},
+			beforetrade_charge = #{beforetradeCharge},
+			trade_charge = #{tradeCharge},
+			trade_date = #{tradeDate},
+			trade_time = #{tradeTime},
+			balance_type = #{balanceType},
+			algorithm_id = #{algorithmId},
+			err_code = #{errCode},
+			err_info = #{errInfo},
+			test_flag = #{testFlag},
+			sett_charge = #{settCharge},
+			issue_charge = #{issueCharge},
+			bill_charge = #{billCharge},
+			reserved = #{reserved},
+			tlv_data = #{tlvData},
+			deal_time = #{dealTime},
+			indb_time = #{indbTime}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM ${tableName}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

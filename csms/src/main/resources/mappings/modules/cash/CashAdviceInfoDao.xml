@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.cash.dao.CashAdviceInfoDao">
+    
+	<sql id="cashAdviceInfoColumns">
+		a.id AS "id",
+		a.provisions_id AS "provisionsId",
+		a.need_pay AS "needPay",
+		a.reason AS "reason",
+		a.pay_deadline AS "payDeadline",
+		a.deal_state AS "dealState",
+		a.advice_type AS "adviceType",
+		a.message AS "message",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="cashAdviceInfoJoins">
+	</sql>
+    
+	<select id="get" resultType="CashAdviceInfo">
+		SELECT 
+			<include refid="cashAdviceInfoColumns"/>
+		FROM cash_advice_info a
+		<include refid="cashAdviceInfoJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="CashAdviceInfo">
+		SELECT 
+			<include refid="cashAdviceInfoColumns"/>
+		FROM cash_advice_info a
+		<include refid="cashAdviceInfoJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="provisionsId != null and provisionsId != ''">
+				AND a.provisions_id = #{provisionsId}
+			</if>
+			<if test="reason != null and reason != ''">
+				AND a.reason = #{reason}
+			</if>
+			<if test="payDeadline != null">
+			    AND a.pay_deadline = #{payDeadline}
+			</if>
+			<if test="dealState != null and dealState != ''">
+				AND a.deal_state = #{dealState}
+			</if>
+			<if test="createDate != null">
+			    AND a.create_date <![CDATA[ >= #{createDate} ]]>
+				
+				
+			</if>
+			<if test="updateDate != null">
+				AND a.update_date <![CDATA[ <= #{updateDate} ]]>
+			</if>
+			<choose>
+			<when test="adviceType !=null and adviceType != ''">
+				AND a.advice_type = #{adviceType}
+			</when>
+			<otherwise>
+				AND a.advice_type != '0'
+			</otherwise>
+			</choose>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.deal_state, a.create_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	<select id="findInfoByParam" resultType="CashAdviceInfo">
+		select * from (SELECT 
+			<include refid="cashAdviceInfoColumns"/>
+		FROM cash_advice_info a
+		<include refid="cashAdviceInfoJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="provisionsId != null and provisionsId != ''">
+				AND a.provisions_id = #{provisionsId}
+			</if>
+			<choose>
+			<when test="adviceType !=null and adviceType != ''">
+				AND a.advice_type = #{adviceType}
+			</when>
+			<otherwise>
+				AND a.advice_type != '0'
+			</otherwise>
+		</choose>
+		</where>
+				ORDER BY a.deal_state, a.create_date DESC) 
+				where ROWNUM <![CDATA[<= 5 ]]>
+	</select>
+	
+	<select id="findAllList" resultType="CashAdviceInfo">
+		SELECT 
+			<include refid="cashAdviceInfoColumns"/>
+		FROM cash_advice_info a
+		<include refid="cashAdviceInfoJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="countNdInfo" resultType="java.lang.String">
+		SELECT 
+			sum(1)
+		FROM cash_advice_info a
+		<include refid="cashAdviceInfoJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="provisionsId != null and provisionsId != ''">
+				AND a.provisions_id = #{provisionsId}
+			</if>
+			<if test="dealState != null and dealState != ''">
+				AND a.deal_state = #{dealState}
+			</if>
+			<choose>
+			<when test="adviceType !=null and adviceType != ''">
+				AND a.advice_type = #{adviceType}
+			</when>
+			<otherwise>
+				AND a.advice_type != '0'
+			</otherwise>
+		</choose>
+		</where>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO cash_advice_info(
+			id,
+			provisions_id,
+			need_pay,
+			reason,
+			pay_deadline,
+			deal_state,
+			advice_type,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			message
+		) VALUES (
+			#{id},
+			#{provisionsId},
+			#{needPay},
+			#{reason},
+			#{payDeadline},
+			#{dealState},
+			#{adviceType},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{message}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE cash_advice_info SET 	
+			deal_state = #{dealState},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE cash_advice_info SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

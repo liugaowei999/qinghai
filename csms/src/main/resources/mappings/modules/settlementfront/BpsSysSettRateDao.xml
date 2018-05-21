@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.settlementfront.dao.BpsSysSettRateDao">
+    
+	<sql id="bpsSysSettRateColumns">
+		a.id AS "id",
+		a.business_type AS "businessType",
+		a.service_type AS "serviceType",
+		a.recv_org_code AS "recvOrgName",
+		a.issue_org_code AS "issueOrgName",
+		a.charge_rate AS "chargeRate",
+		a.recv_rate AS "recvRate",
+		a.issue_rate AS "issueRate",
+		a.eff_date AS "effDate",
+		a.exp_date AS "expDate",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remark AS "remark",
+		a.deal_flag AS "dealFlag",
+		b.business_name AS "businessName",
+		c.service_name AS "serviceName"
+		<!--  d.org_name AS "recvOrgName",
+		e.org_name AS "issueOrgName"-->
+	</sql>
+	
+	<sql id="bpsSysSettRateJoins">
+		LEFT JOIN bps_sys_business_type_def b ON b.business_type = a.business_type
+		LEFT JOIN bps_sys_service_type_def c ON c.service_type = a.service_type
+		LEFT JOIN bps_sys_org_info d ON d.org_code = a.recv_org_code
+		LEFT JOIN bps_sys_org_info e ON e.org_code = a.issue_org_code
+	</sql>
+    
+	<select id="get" resultType="BpsSysSettRate">
+		SELECT 
+			<include refid="bpsSysSettRateColumns"/>
+		FROM bps_sys_sett_rate a
+		<include refid="bpsSysSettRateJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="BpsSysSettRate">
+		SELECT 
+			<include refid="bpsSysSettRateColumns"/>
+		FROM bps_sys_sett_rate a
+		<include refid="bpsSysSettRateJoins"/>
+		<where>
+			a.deal_flag = #{DEL_FLAG_NORMAL}
+			<if test="id!=null and id!=''">
+				and a.id = #{id}
+			</if>
+			<if test="businessType!=null and businessType!=''">
+				and a.business_type = #{businessType}
+			</if>
+			<if test="serviceType!=null and serviceType!=''">
+				and a.service_type = #{serviceType}
+			</if>
+			<if test="recvOrgCode!=null and recvOrgCode!=''">
+				and a.recv_org_code = #{areaType}
+			</if>
+			<if test="issueOrgCode!=null and issueOrgCode!=''">
+				and a.issue_org_code = #{cityCode}
+			</if>
+			<if test="effDate!=null and effDate!=''">
+				and a.eff_date <![CDATA[ >= #{effDate} ]]>
+			</if>
+			<if test="expDate!=null and expDate!=''">
+				and a.exp_date <![CDATA[ <= #{expDate} ]]>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="BpsSysSettRate">
+		SELECT 
+			<include refid="bpsSysSettRateColumns"/>
+		FROM bps_sys_sett_rate a
+		<include refid="bpsSysSettRateJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO bps_sys_sett_rate(
+			id
+			business_type,
+			service_type,
+			recv_org_code,
+			issue_org_code,
+			charge_rate,
+			recv_rate,
+			issue_rate,
+			eff_date,
+			exp_date,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remark,
+			deal_flag
+		) VALUES (
+			SETT_RATE_ID_SEQ.nextval,
+			#{businessType},
+			#{serviceType},
+			#{recvOrgCode},
+			#{issueOrgCode},
+			#{chargeRate},
+			#{recvRate},
+			#{issueRate},
+			#{effDate},
+			#{expDate},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remark},
+			#{DEL_FLAG_NORMAL}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE bps_sys_sett_rate SET 	
+			business_type = #{businessType},
+			service_type = #{serviceType},
+			recv_org_code = #{recvOrgCode},
+			issue_org_code = #{issueOrgCode},
+			charge_rate = #{chargeRate},
+			recv_rate = #{recvRate},
+			issue_rate = #{issueRate},
+			eff_date = #{effDate},
+			exp_date = #{expDate},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remark = #{remark},
+			deal_flag = #{dealFlag}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE bps_sys_sett_rate SET 
+		deal_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

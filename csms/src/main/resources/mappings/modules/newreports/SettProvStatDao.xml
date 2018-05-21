@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.newreports.dao.SettProvStatDao">
+    
+	<sql id="settProvStatColumns">
+		a.sett_cycle AS "settCycle",
+		a.sett_object AS "settObject",
+		a.income_charge AS "incomeCharge",
+		a.outcome_charge AS "outcomeCharge",
+		a.sett_charge AS "settCharge"
+	</sql>
+	
+	<sql id="settProvStatJoins">
+	</sql>
+    
+	<select id="get" resultType="SettProvStat">
+		SELECT 
+			<include refid="settProvStatColumns"/>
+		FROM sett_prov_stat a
+		<include refid="settProvStatJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SettProvStat">
+		SELECT 
+			<include refid="settProvStatColumns"/>
+		FROM sett_prov_stat a
+		<include refid="settProvStatJoins"/>
+		<where>
+			
+			<if test="settCycle != null and settCycle != ''">
+				AND a.sett_cycle = #{settCycle}
+			</if>
+			<if test="settObject != null and settObject != ''">
+				AND a.sett_object = #{settObject}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy},a.sett_cycle desc
+			</when>
+			<otherwise>
+				order by a.sett_cycle desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SettProvStat">
+		SELECT 
+			<include refid="settProvStatColumns"/>
+		FROM sett_prov_stat a
+		<include refid="settProvStatJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy},a.sett_cycle desc
+			</when>
+			<otherwise>
+			order by a.sett_cycle desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sett_prov_stat(
+			sett_cycle,
+			sett_object,
+			income_charge,
+			outcome_charge,
+			sett_charge
+		) VALUES (
+			#{settCycle},
+			#{settObject},
+			#{incomeCharge},
+			#{outcomeCharge},
+			#{settCharge}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sett_prov_stat SET 	
+			sett_cycle = #{settCycle},
+			sett_object = #{settObject},
+			income_charge = #{incomeCharge},
+			outcome_charge = #{outcomeCharge},
+			sett_charge = #{settCharge}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM sett_prov_stat
+		WHERE id = #{id}
+	</update>
+
+	<select id="provStatSumViewChart" resultType="java.util.HashMap">
+		select a.sett_cycle as settCycle,
+		        sum(a.income_charge) as "incomeCharge",
+		        sum(a.outcome_charge) as "outcomeCharge",
+		        sum(a.sett_charge) as "offsetBalance"
+		  from sett_prov_stat a 
+		 <where>
+		     <if test="settCycle != null and settCycle != ''">
+		        AND a.sett_cycle = #{settCycle}
+		     </if>
+			<if test="sqlMap != null and sqlMap.dsf != null and sqlMap.dsf != ''">
+				<!-- 数据范围过滤 -->
+				${sqlMap.dsf}
+			</if>
+		 </where> 
+		 group by a.sett_cycle
+	</select>
+	
+	<select id="allYearLineChart" resultType="java.util.HashMap">
+		select a.sett_cycle as "settCycle",
+		        sum(a.income_charge) as "incomeCharge",
+		        sum(a.outcome_charge) as "outcomeCharge",
+		        sum(a.sett_charge) as "offsetBalance"
+		  from sett_prov_stat a 
+		 <where>
+		     <if test="settCycle != null and settCycle != ''">
+		        AND substr(a.sett_cycle,0,4) = #{settCycle}
+		     </if>
+			<if test="sqlMap != null and sqlMap.dsf != null and sqlMap.dsf != ''">
+				<!-- 数据范围过滤 -->
+				${sqlMap.dsf}
+			</if>
+		 </where> 
+		 group by a.sett_cycle order by a.sett_cycle
+	</select>
+	
+</mapper>

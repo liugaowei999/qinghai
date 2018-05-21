@@ -1,0 +1,150 @@
+*{
+	padding: 0;
+	margin: 0;
+	font-family: "Microsoft YaHei"
+}
+.clearfix:before,
+.clearfix:after {
+    content: " ";
+    display: table;
+}
+.clearfix:after {
+    clear: both;
+}
+.clearfix{
+	zoom: 1;
+}
+.top-search {
+	min-width: 980px;
+	background-color: #ebebeb;
+}
+.top-search .search-inner {
+	width: 980px;
+	height: 45px;
+	margin: 0 auto;
+}
+.top-search .search-inner .search-left {
+	line-height: 45px;
+	float: left;
+}
+.top-search .search-inner .search-left a{
+	text-decoration: none;
+	font-size: 12px;
+	color: #666666;
+}
+.top-search .search-inner .search-left a.setPage {
+	margin-right: 28px;
+}
+.top-search .search-inner .search-right {
+	float: right;
+	line-height: 45px;
+	position: relative;
+}
+.top-search .search-inner .search-right .searchBox {
+	width: 172px;
+	height: 24px;
+	border: 1px solid #ccc；
+}
+.top-search .search-inner .search-right img {
+	position: absolute;
+	right: 9px;
+	top: 18px;
+}
+.nav {
+	min-width: 980px;
+	clear: both;
+}
+.nav .nav-inner {
+	width: 980px;
+	height: 87px;
+	margin: 0 auto;
+}
+.nav .nav-inner .logoBox {
+	float: left;
+	width: 42%;
+}
+.nav .nav-inner .logoBox img {
+	float: left;
+}
+.nav .nav-inner .logoBox .logo {
+	padding-top: 21px;
+}
+.nav .nav-inner .logoBox .line {
+	padding: 28px 22px 0px 22px;
+}
+.nav .nav-inner .logoBox .logo-1 {
+	padding-top: 35px;
+}
+.nav .nav-inner .meau {
+	float: left;
+	width: 58%;
+}
+.nav .nav-inner .meau li {
+	list-style: none;
+}
+.nav .nav-inner .meau li.list {
+	width: 113px;
+	line-height:87px;
+	float: left;
+	text-align: center;
+	position: relative;
+}
+.nav .nav-inner .meau li a {
+	color: #589ed6;
+	font-size: 18px;
+	text-decoration: none;
+}
+.nav .nav-inner .meau .list .line-1 {
+	position: absolute;
+	left: 0px;
+	top: -2px;
+	display: none;
+}
+.nav .nav-inner .meau .list .san {
+	display: none;
+	position: absolute;
+	left: 52px;
+	bottom: 0px;
+}
+.nav .nav-inner .meau .list ul {
+	display: none;
+	position: absolute;
+	background-color: rgba(255,255,255,0.8);
+	width: 113px;
+}
+.nav .nav-inner .meau .list ul li{
+	line-height: 34px;
+	height: 34px;
+	width: 113px;
+	cursor:pointer;
+	margin-top: 11px;
+	color: #0080cb;
+}
+.main {
+	min-width: 980px;
+}
+.main .main-inner {
+	width: 980px;
+	height: 455px;
+	margin: 0 auto;
+	background-color: #3b94d1
+}
+.footer {
+	min-width: 980px;
+}
+.footer .footer-inner {
+	width: 980px;
+	background-color: #f3f3f3;
+	margin: 0 auto;
+	text-align: center;
+	font-size: 12px;
+	color: #666666;
+	overflow: hidden;
+}
+.footer .footer-inner .footer-top {
+	margin-top: 15px;
+	margin-bottom: 10px;
+}
+.footer .footer-inner .footer-bottom {
+	margin-bottom: 15px;
+}

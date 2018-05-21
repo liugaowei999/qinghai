@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.settlementfront.dao.SettEdDao">
+    
+	<sql id="settEdColumns">
+		o.id AS "company.id",
+		o.name AS "company.name",
+		o.parent_ids AS "company.parentIds",
+		a.send_org_code AS "sendOrgCode",
+		a.file_name AS "fileName",
+		a.sett_date AS "settDate",
+		a.sett_org_no AS "settOrgNo",
+		a.bill_org_no AS "billOrgNo",
+		a.bill_org_deal_date AS "billOrgDealDate",
+		a.trade_retriev_no AS "tradeRetrievNo",
+		a.adjust_type AS "adjustType",
+		a.err_type AS "errType",
+		a.card_no AS "cardNo",
+		a.card_count AS "cardCount",
+		a.beforetrade_charge AS "beforetradeCharge",
+		a.adjusted_trade_type AS "adjustedTradeType",
+		a.adjusted_trade_charge AS "adjustedTradeCharge",
+		a.mcc AS "mcc",
+		a.channel_type AS "channelType",
+		a.trade_date AS "tradeDate",
+		a.trade_time AS "tradeTime",
+		a.test_flag AS "testFlag",
+		a.cause_code AS "causeCode",
+		a.err_ori_org_code AS "errOriOrgCode",
+		a.issue_org_code AS "issueOrgCode",
+		a.bill_org_id AS "billOrgId",
+		a.deal_time AS "dealTime",
+		a.indb_time AS "indbTime",
+		a.id AS "id",
+		a.deal_flag AS "dealFlag",
+		a.deal_note AS "dealNote"
+	</sql>
+	
+	<sql id="settEdJoins">
+		LEFT JOIN sys_office o ON o.id = a.bill_org_id  and o.del_flag='0' and o.useable='1'
+	</sql>
+    
+	<select id="get" resultType="SettEd">
+		SELECT 
+			<include refid="settEdColumns"/>
+		FROM ${tableName} a
+		<include refid="settEdJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SettEd">
+		SELECT 
+			<include refid="settEdColumns"/>
+		FROM ${tableName} a
+		<include refid="settEdJoins"/>
+		<where>
+			<if test="dealFlag != null and dealFlag != ''">
+				AND a.deal_flag = #{dealFlag}
+			</if>
+			<if test="company != null and company.id != null and company.id != ''">
+				AND (o.id = #{company.id} OR o.parent_ids LIKE '%,'||#{company.id}||',%')
+			</if>
+			<if test="issueOrgCode != null and issueOrgCode != ''">
+				AND substr(issue_org_code,1,7)= #{issueOrgCode}
+			</if>
+			<if test="billOrgId != null and billOrgId != ''">
+				AND substr(bill_org_id,1,7)= #{billOrgId}
+			</if>
+			<if test="cardNo != null and cardNo != ''">
+				AND card_no= #{cardNo}
+			</if>
+		</where>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				order by a.sett_date desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SettEd">
+		SELECT 
+			<include refid="settEdColumns"/>
+		FROM ${tableName} a
+		<include refid="settEdJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ${tableName}(
+			send_org_code,
+			file_name,
+			sett_date,
+			sett_org_no,
+			bill_org_no,
+			bill_org_deal_date,
+			trade_retriev_no,
+			adjust_type,
+			err_type,
+			card_no,
+			card_count,
+			beforetrade_charge,
+			adjusted_trade_type,
+			adjusted_trade_charge,
+			mcc,
+			channel_type,
+			trade_date,
+			trade_time,
+			test_flag,
+			cause_code,
+			err_ori_org_code,
+			issue_org_code,
+			bill_org_id,
+			deal_time,
+			indb_time,
+			id,
+			deal_flag,
+			deal_note
+		) VALUES (
+			#{sendOrgCode},
+			#{fileName},
+			#{settDate},
+			#{settOrgNo},
+			#{billOrgNo},
+			#{billOrgDealDate},
+			#{tradeRetrievNo},
+			#{adjustType},
+			#{errType},
+			#{cardNo},
+			#{cardCount},
+			#{beforetradeCharge},
+			#{adjustedTradeType},
+			#{adjustedTradeCharge},
+			#{mcc},
+			#{channelType},
+			#{tradeDate},
+			#{tradeTime},
+			#{testFlag},
+			#{causeCode},
+			#{errOriOrgCode},
+			#{issueOrgCode},
+			#{billOrgId},
+			#{dealTime},
+			#{indbTime},
+			#{id},
+			#{dealFlag},
+			#{dealNote}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ${tableName} SET 	
+			send_org_code = #{sendOrgCode},
+			file_name = #{fileName},
+			sett_date = #{settDate},
+			sett_org_no = #{settOrgNo},
+			bill_org_no = #{billOrgNo},
+			bill_org_deal_date = #{billOrgDealDate},
+			trade_retriev_no = #{tradeRetrievNo},
+			adjust_type = #{adjustType},
+			err_type = #{errType},
+			card_no = #{cardNo},
+			card_count = #{cardCount},
+			beforetrade_charge = #{beforetradeCharge},
+			adjusted_trade_type = #{adjustedTradeType},
+			adjusted_trade_charge = #{adjustedTradeCharge},
+			mcc = #{mcc},
+			channel_type = #{channelType},
+			trade_date = #{tradeDate},
+			trade_time = #{tradeTime},
+			test_flag = #{testFlag},
+			cause_code = #{causeCode},
+			err_ori_org_code = #{errOriOrgCode},
+			issue_org_code = #{issueOrgCode},
+			bill_org_id = #{billOrgId},
+			deal_time = #{dealTime},
+			indb_time = #{indbTime},
+			deal_flag = #{dealFlag},
+			deal_note = #{dealNote}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM ${tableName}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

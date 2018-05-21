@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cttic.csms.modules.newreports.dao.SettCityStatDao">
+    
+	<sql id="settCityStatColumns">
+		a.sett_cycle AS "settCycle",
+		a.sett_object AS "settObject",
+		round(a.income_charge,2) AS "incomeCharge",
+		round(a.outcome_charge,2) AS "outcomeCharge",
+		round(a.sett_charge,2) AS "settCharge"
+	</sql>
+	
+	<sql id="settCityStatJoins">
+	LEFT JOIN sys_office o ON o.name = a.sett_object  and o.del_flag='0' and o.useable='1'
+	</sql>
+    
+	<select id="get" resultType="SettCityStat">
+		SELECT 
+			<include refid="settCityStatColumns"/>
+		FROM sett_city_stat a
+		<include refid="settCityStatJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SettCityStat">
+		SELECT 
+			<include refid="settCityStatColumns"/>
+		FROM sett_city_stat a
+		<include refid="settCityStatJoins"/>
+		<where>
+			
+			<if test="settCycle != null and settCycle != ''">
+				AND a.sett_cycle = #{settCycle}
+			</if>
+			<if test="settObject != null and settObject != ''">
+				AND a.sett_object = #{settObject}
+			</if>
+		</where>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy},a.sett_cycle desc
+			</when>
+			<otherwise>
+				order by a.sett_cycle desc
+			</otherwise>
+		</choose>
+	</select>
+	<select id="cityCodeCityViewChart" resultType="java.util.HashMap">
+		select  a.sett_object as "settObject",
+		        round(sum(a.income_charge),2) as "incomeCharge",
+		        round(sum(a.outcome_charge),2) as "outcomeCharge",
+		        round(sum(a.sett_charge),2) as "settCharge"
+		from sett_city_stat a 
+		<include refid="settCityStatJoins"/>
+		where  substr(a.sett_cycle,0,6) = #{settCycle}
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}
+		group by a.sett_object
+	</select>
+		 
+	<select id="findAllList" resultType="SettCityStat">
+		SELECT 
+			<include refid="settCityStatColumns"/>
+		FROM sett_city_stat a
+		<include refid="settCityStatJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy},a.sett_cycle desc
+			</when>
+			<otherwise>
+				order by a.sett_cycle desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sett_city_stat(
+			sett_cycle,
+			sett_object,
+			income_charge,
+			outcome_charge,
+			sett_charge
+		) VALUES (
+			#{settCycle},
+			#{settObject},
+			#{incomeCharge},
+			#{outcomeCharge},
+			#{settCharge}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sett_city_stat SET 	
+			sett_cycle = #{settCycle},
+			sett_object = #{settObject},
+			income_charge = #{incomeCharge},
+			outcome_charge = #{outcomeCharge},
+			sett_charge = #{settCharge}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM sett_city_stat
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

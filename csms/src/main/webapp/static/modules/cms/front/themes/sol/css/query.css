@@ -1,0 +1,70 @@
+.banner .banner-inner .left .cardNum {
+	width: 134px;
+	height: 24px;
+	font-size: 12px;
+	display: block;
+	margin: 0 auto;
+	padding-left: 5px;
+	border: 1px solid #ccc;
+}
+.banner .banner-inner .left .codeBox {
+	width: 134x;
+	margin: 0 auto;
+	margin-top: 10px;
+}
+.banner .banner-inner .left .codeBox .codeNum {
+	width: 65px;
+	height: 24px;
+	font-size: 12px;
+	float: left;
+	padding-left: 5px;
+	border: 1px solid #ccc;
+	padding-left:3px !important;
+	margin-left:8px;
+}
+.banner .banner-inner .left  input[type="text"] {
+	padding:1px 0 !important;
+}
+.banner .banner-inner .left .codeBox .codePic {
+	float: left;
+	margin-left:6px;
+}
+.banner .banner-inner .left .meau-tit {
+	margin-bottom:10px;
+}
+.banner .banner-inner .left .searchBtn {
+	width: 62px;
+	height: 26px;
+	color: #fff;
+	background-color: #0080cb;
+	border: 0;
+	margin: 10px 0px 472px 7px;
+}
+.banner .banner-inner .right .cardTxt {
+	font-size: 14px;
+	color: #333333;
+	padding: 10px 0px 10px 0px;
+}
+.banner .banner-inner .right .cardNumber {
+	color: #0080cb;
+	font-weight: bold;
+}
+.banner .banner-inner .right .rechargeQuery {
+	font-size: 17px;
+	color: #0080cb;
+}
+.banner .banner-inner .right .table tr th {
+	text-align: center;
+	border: 0;
+	font-weight: normal;
+	font-size: 16px;
+}
+.banner .banner-inner .right .table tr th{
+	background: #0080cb;
+	color: #fff;
+}
+.banner .banner-inner .right .table tr td {
+	text-align: center;
+	font-size: 14px;
+
+}
