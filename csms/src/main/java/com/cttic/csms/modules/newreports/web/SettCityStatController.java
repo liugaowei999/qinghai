@@ -22,8 +22,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.cttic.csms.modules.newreports.entity.SettCityDaily;
 import com.cttic.csms.modules.newreports.entity.SettCityStat;
 import com.cttic.csms.modules.newreports.service.SettCityStatService;
+import com.cttic.csms.modules.newreports.service.SettCityDailyService;
 import com.thinkgem.jeesite.common.config.Global;
 import com.thinkgem.jeesite.common.persistence.Page;
 import com.thinkgem.jeesite.common.utils.StringUtils;
@@ -44,6 +46,9 @@ public class SettCityStatController extends BaseController {
 	@Autowired
 	private SettCityStatService settCityStatService;
 
+	@Autowired
+	private SettCityDailyService settCityDailyService;
+
 	@ModelAttribute
 	public SettCityStat get(@RequestParam(required = false) String id) {
 		SettCityStat entity = null;
@@ -56,67 +61,130 @@ public class SettCityStatController extends BaseController {
 		return entity;
 	}
 
-	@RequiresPermissions("newreports:settCityStat:view")
+    @ModelAttribute
+    public SettCityStat get1(@RequestParam(required=false) String id) {
+        SettCityStat entity = null;
+        if (StringUtils.isNotBlank(id))
+            entity = this.settCityStatService.get(id);
+
+        if (entity == null)
+            entity = new SettCityStat();
+
+        return entity;
+    }
+
+
+    @RequiresPermissions("newreports:settCityStat:view")
 	@RequestMapping(value = { "list", "" })
-	public String list(SettCityStat settCityStat, HttpServletRequest request, HttpServletResponse response,
-			Model model) {
-		if (StringUtils.isEmpty(settCityStat.getSettCycle())) {
+	public String list(SettCityDaily settCityDaily, HttpServletRequest request, HttpServletResponse response, Model model) {
+		System.out.println("########################cmonthlist #####################");
+		if ((StringUtils.isEmpty(settCityDaily.getBeginSettDate())) &&
+				(StringUtils.isEmpty(settCityDaily.getEndSettDate()))) {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
 			Calendar calendar = Calendar.getInstance();
 			calendar.set(Calendar.DAY_OF_MONTH, 1);
-			settCityStat.setSettCycle(sdf.format(calendar.getTime()));
+			settCityDaily.setBeginSettDate(sdf.format(calendar.getTime()));
+			settCityDaily.setEndSettDate(sdf.format(calendar.getTime()));
+			System.out.println(settCityDaily.getEndSettDate() + " - " + settCityDaily.getBeginSettDate());
 		}
-		Page<SettCityStat> page = settCityStatService.findPage(new Page<SettCityStat>(request, response), settCityStat);
-		List<SettCityStat> allList = settCityStatService.findAllList();
+
+		System.out.println(settCityDaily.getEndSettDate() + " -- " + settCityDaily.getBeginSettDate());
+
+		SettCityDaily settCityDailySum = settCityDailyService.settCityMonthlySum(settCityDaily);
+		List<SettCityDaily> allList = settCityDailyService.findAllList(settCityDaily);
+		List<SettCityDaily> monthList = settCityDailyService.findMonthList(settCityDaily);
+		Page page = new Page();
+		page.setList(monthList);
+		page.setCount(monthList.size());
+		page.setPageSize(monthList.size());
+		page.setPageNo((monthList.size() == 0) ? 0 : 1);
+
+		//List settObjectList = new ArrayList();
 		List<String> settObjectList = new ArrayList<String>();
-		for (SettCityStat ss : allList) {
+		List<String> settRoleList = new ArrayList<>();
 
-			if (!StringUtils.isEmpty(ss.getSettObject()) && (!settObjectList.contains(ss.getSettObject()))) {
-				settObjectList.add(ss.getSettObject().trim());
-			}
+		for (SettCityDaily ss : allList)
+		{
+            if (!StringUtils.isEmpty(ss.getSettObject()) && (!settObjectList.contains(ss.getSettObject()))) {
+                settObjectList.add(ss.getSettObject().trim());
+            }
 
+			if ( (!StringUtils.isEmpty(ss.getSettRole())) && (!settRoleList.contains(ss.getSettRole())) ) {
+                settRoleList.add(ss.getSettRole().trim());
+            }
 		}
 
-		User user = settCityStat.getCurrentUser();
-		String dataScope = "";
-		for (Role role : user.getRoleList()) {
-			dataScope = role.getDataScope();
+		if (settCityDailySum != null) {
+			settCityDailySum.setSettDate("合计：");
+			page.getList().add(settCityDailySum);
 		}
-		model.addAttribute("dataScope", dataScope);
 		model.addAttribute("page", page);
 		model.addAttribute("settObjectList", settObjectList);
+		model.addAttribute("settRoleList", settRoleList);
 		return "modules/newreports/settCityStatList";
+
+		//Page<SettCityStat> page = settCityStatService.findPage(new Page<SettCityStat>(request, response), settCityStat);
+		//List<SettCityStat> allList = settCityStatService.findAllList();
+
+
+		//User user = settCityStat.getCurrentUser();
+		//String dataScope = "";
+		//for (Role role : user.getRoleList()) {
+		//	dataScope = role.getDataScope();
+		//}
+		//model.addAttribute("dataScope", dataScope);
+		//model.addAttribute("page", page);
+		//model.addAttribute("settObjectList", settObjectList);
+		//return "modules/newreports/settCityStatList";
 	}
 
 	@RequestMapping(value = { "settCityStatList" })
-	public String settCityStatList(SettCityStat settCityStat, HttpServletRequest request, HttpServletResponse response,
-			Model model) {
-		if (StringUtils.isEmpty(settCityStat.getSettCycle())) {
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
-			Calendar calendar = Calendar.getInstance();
-			calendar.set(Calendar.DAY_OF_MONTH, 1);
-			settCityStat.setSettCycle(sdf.format(calendar.getTime()));
-		}
-		Page<SettCityStat> page = settCityStatService.findPage(new Page<SettCityStat>(request, response), settCityStat);
-		List<SettCityStat> allList = settCityStatService.findList(settCityStat);
-		List<String> settObjectList = new ArrayList<String>();
-		for (SettCityStat ss : allList) {
+	public String settCityStatList(SettCityDaily settCityDaily, HttpServletRequest request, HttpServletResponse response, Model model) {
+        System.out.println("######################## settCityStatList cmonthlist #####################");
+        if ((StringUtils.isEmpty(settCityDaily.getBeginSettDate())) &&
+                (StringUtils.isEmpty(settCityDaily.getEndSettDate()))) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.DAY_OF_MONTH, 1);
+            settCityDaily.setBeginSettDate(sdf.format(calendar.getTime()));
+            settCityDaily.setEndSettDate(sdf.format(calendar.getTime()));
+            System.out.println("settCityStatList: " + settCityDaily.getEndSettDate() + " - " + settCityDaily.getBeginSettDate());
+        }
 
-			if (!StringUtils.isEmpty(ss.getSettObject()) && (!settObjectList.contains(ss.getSettObject()))) {
-				settObjectList.add(ss.getSettObject().trim());
-			}
+        System.out.println(settCityDaily.getEndSettDate() + " -- " + settCityDaily.getBeginSettDate());
 
-		}
+        SettCityDaily settCityDailySum = settCityDailyService.settCityMonthlySum(settCityDaily);
+        List<SettCityDaily> allList = settCityDailyService.findAllList(settCityDaily);
+        List<SettCityDaily> monthList = settCityDailyService.findMonthList(settCityDaily);
+        Page page = new Page();
+        page.setList(monthList);
+        page.setCount(monthList.size());
+        page.setPageSize(monthList.size());
+        page.setPageNo((monthList.size() == 0) ? 0 : 1);
 
-		User user = settCityStat.getCurrentUser();
-		String dataScope = "";
-		for (Role role : user.getRoleList()) {
-			dataScope = role.getDataScope();
-		}
-		model.addAttribute("dataScope", dataScope);
-		model.addAttribute("page", page);
-		model.addAttribute("settObjectList", settObjectList);
-		return "modules/newreports/settCityStatList";
+        //List settObjectList = new ArrayList();
+        List<String> settObjectList = new ArrayList<String>();
+        List<String> settRoleList = new ArrayList<>();
+
+        for (SettCityDaily ss : allList)
+        {
+            if (!StringUtils.isEmpty(ss.getSettObject()) && (!settObjectList.contains(ss.getSettObject()))) {
+                settObjectList.add(ss.getSettObject().trim());
+            }
+
+            if ( (!StringUtils.isEmpty(ss.getSettRole())) && (!settRoleList.contains(ss.getSettRole())) ) {
+                settRoleList.add(ss.getSettRole().trim());
+            }
+        }
+
+        if (settCityDailySum != null) {
+            settCityDailySum.setSettDate("合计：");
+            page.getList().add(settCityDailySum);
+        }
+        model.addAttribute("page", page);
+        model.addAttribute("settObjectList", settObjectList);
+        model.addAttribute("settRoleList", settRoleList);
+        return "modules/newreports/settCityStatList";
 	}
 
 	/**

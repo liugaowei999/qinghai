@@ -80,4 +80,16 @@ public class SettCityDailyService extends CrudService<SettCityDailyDao, SettCity
 		settCityDaily.getSqlMap().put("dsf",dataScopeFilter(settCityDaily.getCurrentUser(),"o",""));
 		return settCityDailyDao.settCityDailySum(settCityDaily);
 	}
+
+	public SettCityDaily settCityMonthlySum(SettCityDaily settCityDaily)
+	{
+		settCityDaily.getSqlMap().put("dsf", dataScopeFilter(settCityDaily.getCurrentUser(), "o", ""));
+		return this.settCityDailyDao.settCityMonthlySum(settCityDaily);
+	}
+
+	public List<SettCityDaily> findMonthList(SettCityDaily settCityDaily)
+	{
+		settCityDaily.getSqlMap().put("dsf", dataScopeFilter(settCityDaily.getCurrentUser(), "o", ""));
+		return this.settCityDailyDao.findMonthList(settCityDaily);
+	}
 }
