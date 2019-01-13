@@ -17,15 +17,15 @@
 	    a.bill_org_code AS "billOrgCode",
 	    c.org_name AS "billOrgName",
 	    a.card_no AS "cardNo",
-	    a.before_trade_charge/100 AS "beforeTradeCharge",
-	    a.trade_charge/100 AS "tradeCharge",
+	    nvl(a.before_trade_charge,0)/100 AS "beforeTradeCharge",
+	    nvl(a.trade_charge,0)/100 AS "tradeCharge",
 	    a.trade_date AS "tradeDate",
 	    a.trade_time AS "tradeTime",
-	    a.service_charge/100 AS "serviceCharge",
-	    a.issue_charge/100 AS "issueCharge",
-	    a.bill_charge/100 AS "billCharge",
-	    a.center_charge/100 AS "centerCharge",
-	    a.sett_charge/100 AS "settCharge",
+	    nvl(a.service_charge,0)/100 AS "serviceCharge",
+	    nvl(a.issue_charge,0)/100 AS "issueCharge",
+	    nvl(a.bill_charge,0)/100 AS "billCharge",
+	    nvl(a.center_charge,0)/100 AS "centerCharge",
+	    nvl(a.sett_charge,0)/100 AS "settCharge",
 	    o.name AS "settOrgCode",
 	    a.roam_type  AS "roamType",
 	    decode(a.roam_type,'1','省内跨地市','2','省外','无') AS "roamTypeName"
@@ -150,12 +150,12 @@
 
 	<!-- add sum -->
 	<select id="getSum" resultType="SettCityDetail">
-		SELECT     round(sum(a.trade_charge)/100,2) AS "tradeCharge",
-		round(sum(a.service_charge)/100,2) AS "serviceCharge",
-		round(sum(a.issue_charge)/100,2) AS "issueCharge",
-		round(sum(a.bill_charge)/100,2) AS "billCharge",
-		round(sum(a.center_charge)/100,2) AS "centerCharge",
-		round(sum(a.sett_charge)/100,2) AS "settCharge",
+		SELECT     nvl(round(sum(a.trade_charge)/100,2),0) AS "tradeCharge",
+		nvl(round(sum(a.service_charge)/100,2),0) AS "serviceCharge",
+		nvl(round(sum(a.issue_charge)/100,2),0) AS "issueCharge",
+		nvl(round(sum(a.bill_charge)/100,2),0) AS "billCharge",
+		nvl(round(sum(a.center_charge)/100,2),0) AS "centerCharge",
+		nvl(round(sum(a.sett_charge)/100,2),0) AS "settCharge",
 		count(*) || '笔' AS "cardNo"
 		FROM sett_city_detail a
 		<include refid="settCityDetailJoins"/>
