@@ -109,21 +109,30 @@ public class SettCityDailyController extends BaseController {
 			calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
 			settCityDaily.setEndSettDate(sdf.format(calendar.getTime()));
 		}
-		Page<SettCityDaily> page = settCityDailyService.findPage(new Page<SettCityDaily>(request, response),
-				settCityDaily);
-		List<SettCityDaily> allList = settCityDailyService.findAllList(settCityDaily);
-		List<String> settObjectList = new ArrayList<String>();
-		List<String> settRoleList = new ArrayList<String>();
-		for (SettCityDaily ss : allList) {
 
-			if (!StringUtils.isEmpty(ss.getSettObject()) && (!settObjectList.contains(ss.getSettObject()))) {
-				settObjectList.add(ss.getSettObject().trim());
-			}
-			if (!StringUtils.isEmpty(ss.getSettRole()) && (!settRoleList.contains(ss.getSettRole()))) {
-				settRoleList.add(ss.getSettRole().trim());
-			}
+        SettCityDaily settCityDailySum = settCityDailyService.settCityDailySum(settCityDaily);
+        //List allList = settCityDailyService.findAllList(settCityDaily);
+        //Page page = settCityDailyService.findPage(new Page(request, response), settCityDaily);
 
-		}
+		Page<SettCityDaily> page = settCityDailyService.findPage(new Page<SettCityDaily>(request, response), 	settCityDaily);
+        List<SettCityDaily> allList = settCityDailyService.findAllList(settCityDaily);
+        List<String> settObjectList = new ArrayList<String>();
+        List<String> settRoleList = new ArrayList<String>();
+
+        for (SettCityDaily ss : allList) {
+            if (!StringUtils.isEmpty(ss.getSettObject()) && (!settObjectList.contains(ss.getSettObject()))) {
+                settObjectList.add(ss.getSettObject().trim());
+            }
+            if (!StringUtils.isEmpty(ss.getSettRole()) && (!settRoleList.contains(ss.getSettRole()))) {
+                settRoleList.add(ss.getSettRole().trim());
+            }
+        }
+
+        if (settCityDailySum != null) {
+            settCityDailySum.setSettDate("合计：");
+            page.getList().add(settCityDailySum);
+        }
+
 		model.addAttribute("page", page);
 		model.addAttribute("settObjectList", settObjectList);
 		model.addAttribute("settRoleList", settRoleList);
@@ -252,6 +261,37 @@ public class SettCityDailyController extends BaseController {
 		settCityDailyService.delete(settCityDaily);
 		addMessage(redirectAttributes, "删除省内日统计报表成功");
 		return "redirect:" + Global.getAdminPath() + "/newreports/settCityDaily/?repage";
+	}
+
+
+	@RequiresPermissions({"newreports:settCityDaily:view"})
+	@RequestMapping(value={"exportmonth"}, method={RequestMethod.POST})
+	public String exportMonthlyFile(SettCityDaily settCityDaily, HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes)
+	{
+		try
+		{
+			String fileName;
+			if ((StringUtils.isEmpty(settCityDaily.getBeginSettDate())) ||
+					(StringUtils.isEmpty(settCityDaily.getEndSettDate())))
+				fileName = "省内月结算报表.xlsx";
+			else {
+				fileName = "省内月结算报表(" + settCityDaily.getBeginSettDate() + "-" + settCityDaily.getEndSettDate() +
+						").xlsx";
+			}
+
+			List displayList = this.settCityDailyService.findMonthList(settCityDaily);
+			SettCityDaily settCityDailySum = this.settCityDailyService.settCityMonthlySum(settCityDaily);
+			if (settCityDailySum != null)
+				settCityDailySum.setSettDate("合计：");
+
+			displayList.add(settCityDailySum);
+			new ExportExcel("省内月结算报表", SettCityDaily.class).setDataList(displayList).write(response, fileName)
+					.dispose();
+			return null;
+		} catch (Exception e) {
+			addMessage(redirectAttributes, new String[] { "导出用户失败！失败信息：" + e.getMessage() });
+		}
+		return "redirect:" + Global.getAdminPath() + "/newreports/settCityStat/?repage";
 	}
 
 }
