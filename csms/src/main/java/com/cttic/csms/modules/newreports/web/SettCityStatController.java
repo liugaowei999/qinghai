@@ -50,13 +50,13 @@ public class SettCityStatController extends BaseController {
 	private SettCityDailyService settCityDailyService;
 
 	@ModelAttribute
-	public SettCityStat get(@RequestParam(required = false) String id) {
-		SettCityStat entity = null;
+	public SettCityDaily get(@RequestParam(required = false) String id) {
+		SettCityDaily entity = null;
 		if (StringUtils.isNotBlank(id)) {
-			entity = settCityStatService.get(id);
+			entity = settCityDailyService.get(id);
 		}
 		if (entity == null) {
-			entity = new SettCityStat();
+			entity = new SettCityDaily();
 		}
 		return entity;
 	}

@@ -25,7 +25,7 @@ public interface SettCityDailyDao extends CrudDao<SettCityDaily> {
 	List<SettCityDaily> billCodeProvLineChart(SettCityDaily settCityDaily);
 	SettCityDaily settCityDailySum(SettCityDaily settCityDaily);
 
-	public abstract List<SettCityDaily> findMonthList(SettCityDaily paramSettCityDaily);
-	public abstract SettCityDaily settCityMonthlySum(SettCityDaily paramSettCityDaily);
+	List<SettCityDaily> findMonthList(SettCityDaily paramSettCityDaily);
+	SettCityDaily settCityMonthlySum(SettCityDaily paramSettCityDaily);
 	
 }
