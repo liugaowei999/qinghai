@@ -7,6 +7,7 @@ import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -68,13 +69,27 @@ public class SettCityDailyController extends BaseController {
 			calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
 			settCityDaily.setEndSettDate(sdf.format(calendar.getTime()));
 		}
-		SettCityDaily settCityDailySum = settCityDailyService.settCityDailySum(settCityDaily);
-		List<SettCityDaily> allList = settCityDailyService.findAllList(settCityDaily);
-		Page<SettCityDaily> page = settCityDailyService.findPage(new Page<SettCityDaily>(request, response),
-				settCityDaily);
+		HashMap<String,String> settAreaMap = new HashMap<String,String>();
+		if(StringUtils.isNotEmpty(settCityDaily.getSettArea())){
+			String settArea = settCityDaily.getSettArea();
+			if(StringUtils.isNotEmpty(settCityDaily.getSettRole())){
+				SettCityDaily settCityDaily2 =new SettCityDaily();
+				if(settArea.equals("省内")){
+					settCityDaily2.setSettRole("省内");
+				}else if(settArea.equals("省外")){
+					settCityDaily2.setSettRole("省外");
+				}
+				SettCityDaily settCityDailySum = settCityDailyService.settCityDailySum(settCityDaily);
+				List<SettCityDaily> allList = settCityDailyService.findAllListByArea(settCityDaily2);
+				Page<SettCityDaily> page = settCityDailyService.findPage(new Page<SettCityDaily>(request, response),
+						settCityDaily);
 
-		List<String> settObjectList = new ArrayList<String>();
-		List<String> settRoleList = new ArrayList<String>();
+				List<String> settObjectList = new ArrayList<String>();
+				List<String> settRoleList = new ArrayList<String>();
+				List<String> settAreaList = new ArrayList<String>();
+				settAreaList.add("省内");
+				settAreaList.add("省外");
+				settAreaMap.put("settArea", settCityDaily.getSettArea());
 
 		for (SettCityDaily ss : allList) {
 
@@ -85,16 +100,112 @@ public class SettCityDailyController extends BaseController {
 				settRoleList.add(ss.getSettRole().trim());
 			}
 
+				}
+				//add sum
+				if (settCityDailySum != null) {
+					settCityDailySum.setSettDate("合计：");
+					page.getList().add(settCityDailySum);
+				}
+				model.addAttribute("page", page);
+				model.addAttribute("settObjectList", settObjectList);
+				model.addAttribute("settRoleList", settRoleList);
+				model.addAttribute("settAreaList", settAreaList);
+				model.addAttribute("settAreaMap", settAreaMap);
+			}else{
+				
+				if(settArea.equals("省内")){
+					settCityDaily.setSettRole("省内");
+				}else if(settArea.equals("省外")){
+					settCityDaily.setSettRole("省外");
+				}
+				SettCityDaily settCityDailySum = settCityDailyService.settCityDailySumByArea(settCityDaily);
+				List<SettCityDaily> allList = settCityDailyService.findAllListByArea(settCityDaily);
+				Page<SettCityDaily> page = settCityDailyService.findPageByArea(new Page<SettCityDaily>(request, response),
+						settCityDaily);
+
+				List<String> settObjectList = new ArrayList<String>();
+				List<String> settRoleList = new ArrayList<String>();
+				List<String> settAreaList = new ArrayList<String>();
+				settAreaList.add("省内");
+				settAreaList.add("省外");
+				settAreaMap.put("settArea", settCityDaily.getSettArea());
+
+				for (SettCityDaily ss : allList) {
+
+					if (!StringUtils.isEmpty(ss.getSettObject()) && (!settObjectList.contains(ss.getSettObject()))) {
+						settObjectList.add(ss.getSettObject().trim());
+					}
+					if (!StringUtils.isEmpty(ss.getSettRole()) && (!settRoleList.contains(ss.getSettRole()))) {
+						settRoleList.add(ss.getSettRole().trim());
+					}
+
+				}
+				//add sum
+				if (settCityDailySum != null) {
+					settCityDailySum.setSettDate("合计：");
+					page.getList().add(settCityDailySum);
+				}
+				model.addAttribute("page", page);
+				model.addAttribute("settObjectList", settObjectList);
+				model.addAttribute("settRoleList", settRoleList);
+				model.addAttribute("settAreaList", settAreaList);
+				model.addAttribute("settAreaMap", settAreaMap);
+			}
+		}else{
+			SettCityDaily settCityDailySum = settCityDailyService.settCityDailySum(settCityDaily);
+			List<SettCityDaily> allList = settCityDailyService.findAllList(settCityDaily);
+			Page<SettCityDaily> page = settCityDailyService.findPage(new Page<SettCityDaily>(request, response),
+					settCityDaily);
+
+			List<String> settObjectList = new ArrayList<String>();
+			List<String> settRoleList = new ArrayList<String>();
+			List<String> settAreaList = new ArrayList<String>();
+			settAreaList.add("省内");
+			settAreaList.add("省外");
+			settAreaMap.put("settArea", "");
+
+			for (SettCityDaily ss : allList) {
+
+				if (!StringUtils.isEmpty(ss.getSettObject()) && (!settObjectList.contains(ss.getSettObject()))) {
+					settObjectList.add(ss.getSettObject().trim());
+				}
+				if (!StringUtils.isEmpty(ss.getSettRole()) && (!settRoleList.contains(ss.getSettRole()))) {
+					settRoleList.add(ss.getSettRole().trim());
+				}
+
+			}
+			//add sum
+			if (settCityDailySum != null) {
+				settCityDailySum.setSettDate("合计：");
+				page.getList().add(settCityDailySum);
+			}
+			model.addAttribute("page", page);
+			model.addAttribute("settObjectList", settObjectList);
+			model.addAttribute("settRoleList", settRoleList);
+			model.addAttribute("settAreaList", settAreaList);
+			model.addAttribute("settAreaMap", settAreaMap);
 		}
-		//add sum
-		if (settCityDailySum != null) {
-			settCityDailySum.setSettDate("合计：");
-			page.getList().add(settCityDailySum);
-		}
-		model.addAttribute("page", page);
-		model.addAttribute("settObjectList", settObjectList);
-		model.addAttribute("settRoleList", settRoleList);
+		
 		return "modules/newreports/settCityDailyList";
+	}
+	
+	@RequestMapping(value={"getSettRole"})
+	@ResponseBody
+	public List<String> getSettRole(String settArea){
+		SettCityDaily settCityDaily = new SettCityDaily();
+		if(settArea.equals("省内")){
+			settCityDaily.setSettRole("省内");
+		}else if(settArea.equals("省外")){
+			settCityDaily.setSettRole("省外");
+		}
+		List<SettCityDaily> allList = settCityDailyService.findAllListByArea(settCityDaily);
+		List<String> settRoleList = new ArrayList<String>();
+		for (SettCityDaily ss : allList) {
+			if (!StringUtils.isEmpty(ss.getSettRole()) && (!settRoleList.contains(ss.getSettRole()))) {
+				settRoleList.add(ss.getSettRole().trim());
+			}
+		}
+		return settRoleList;
 	}
 
 	@RequestMapping(value = { "settCityDailyList" })

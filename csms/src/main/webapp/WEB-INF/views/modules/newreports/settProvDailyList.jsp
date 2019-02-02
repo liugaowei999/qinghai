@@ -2,7 +2,7 @@
 <%@ include file="/WEB-INF/views/include/taglib.jsp"%>
 <html>
 <head>
-	<title>跨省日统计报表管理</title>
+	<title>省部-日统计报表管理</title>
 	<meta name="decorator" content="default"/>
 	<script type="text/javascript">
 		$(document).ready(function() {
@@ -32,7 +32,7 @@
 </head>
 <body>
 	<ul class="nav nav-tabs">
-		<li class="active"><a href="${ctx}/newreports/settProvDaily/settProvDailyList">跨省日统计报表</a></li>
+		<li class="active"><a href="${ctx}/newreports/settProvDaily/settProvDailyList">省部-日统计报表</a></li>
 		<li><a href="${ctx}/newreports/settProvDaily/settProvDailyChart">图表展示</a></li>
 	</ul>
 	<form:form id="searchForm" modelAttribute="settProvDaily" action="${ctx}/newreports/settProvDaily/" method="post" class="breadcrumb form-search">
