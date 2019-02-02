@@ -2,7 +2,7 @@
 <%@ include file="/WEB-INF/views/include/taglib.jsp"%>
 <html>
 <head>
-	<title>跨省结算详单展示</title>
+	<title>省部-结算详单展示</title>
 	<meta name="decorator" content="default"/>
 	<script type="text/javascript">
 		$(document).ready(function() {
@@ -32,7 +32,7 @@
 </head>
 <body>
 	<ul class="nav nav-tabs">
-		<li class="active"><a href="${ctx}/newreports/settProvDetail/settProvDetailList/">跨省结算详单列表</a></li>
+		<li class="active"><a href="${ctx}/newreports/settProvDetail/settProvDetailList/">省部-结算详单列表</a></li>
 		</ul>
 	<form:form id="searchForm" modelAttribute="settProvDetail" action="${ctx}/newreports/settProvDetail/" method="post" class="breadcrumb form-search">
 		<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>

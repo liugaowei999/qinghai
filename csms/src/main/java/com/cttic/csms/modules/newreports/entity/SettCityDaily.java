@@ -30,6 +30,7 @@ public class SettCityDaily extends DataEntity<SettCityDaily> {
 	private Double settCharge;		// sett_charge
 	private String beginSettDate;		// 开始 结算日期
 	private String endSettDate;		// 结束 结算日期
+	private String settArea;
 	
 	private DecimalFormat df=new DecimalFormat("##############.#################");
 	
@@ -156,5 +157,14 @@ public class SettCityDaily extends DataEntity<SettCityDaily> {
 	public void setEndSettDate(String endSettDate) {
 		this.endSettDate = endSettDate;
 	}
+
+	public String getSettArea() {
+		return settArea;
+	}
+
+	public void setSettArea(String settArea) {
+		this.settArea = settArea;
+	}
+	
 	
 }

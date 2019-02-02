@@ -2,7 +2,7 @@
 <%@ include file="/WEB-INF/views/include/taglib.jsp"%>
 <html>
 <head>
-	<title>省内日统计报表管理</title>
+	<title>省地市-日统计报表管理</title>
 	<meta name="decorator" content="default"/>
 	<script type="text/javascript">
 		$(document).ready(function() {
@@ -28,11 +28,34 @@
 			$("#searchForm").submit();
         	return false;
         }
+		function setSettRole(){
+			$("#settArea").val();
+			var options=$("#settArea option:selected");//获取当前选择项.
+			var settArea = options.val(); 
+			$.ajax({
+				type : "GET",//方法类型
+				dataType : "json",//预期服务器返回的数据类型
+				url : "${ctx}/newreports/settCityDaily/getSettRole",
+				data : {"settArea":settArea},
+				success : function(result) {
+					if(result.length>0){
+						$("#settRole").empty();
+						var optionVar = "<option value=\"\">全部</option>";
+						for(var i=0;i<result.length;i++){
+							optionVar+="<option value=\""+result[i]+"\">"+result[i]+"</option>";
+						}
+						$("#settRole").append(optionVar);
+					}
+				},
+				error : function() {
+				}
+			})
+		}
 	</script>
 </head>
 <body>
 	<ul class="nav nav-tabs">
-		<li class="active"><a href="${ctx}/newreports/settCityDaily/settCityDailyList">省内日统计报表</a></li>
+		<li class="active"><a href="${ctx}/newreports/settCityDaily/settCityDailyList">省地市-日统计报表</a></li>
 		<li><a href="${ctx}/newreports/settCityDaily/settCityDailyChart">图表展示</a></li>
 	</ul>
 	<form:form id="searchForm" modelAttribute="settCityDaily" action="${ctx}/newreports/settCityDaily/" method="post" class="breadcrumb form-search">
@@ -64,8 +87,23 @@
 				</select>
 				
 			</li>
-			<li><label>结算角色：</label>
-				<select name="settRole" class="input-medium">
+			<li><label>结算地区：</label>
+				<select id="settArea" name="settArea" class="input-medium" onchange="setSettRole()">
+					<option value="">全部</option>
+					<c:forEach items="${settAreaList}" var="settArea" >
+						<c:choose>
+							<c:when test="${settAreaMap.settArea == settArea}">
+								<option selected="selected" value="${settArea}">${settArea}</option>
+							</c:when>
+							<c:otherwise>
+								<option value="${settArea}">${settArea}</option>
+							</c:otherwise>
+						</c:choose>
+					</c:forEach>
+				</select>
+			</li>
+			<li><label>结算类型：</label>
+				<select id="settRole" name="settRole" class="input-medium">
 					<option value="">全部</option>
 					<c:forEach items="${settRoleList}" var="settRole" >
 						<c:choose>

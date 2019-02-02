@@ -319,5 +319,55 @@
 	<!-- 数据范围过滤 -->
 	${sqlMap.dsf}
 	</select>
-
+	<select id="settCityDailySumByArea" resultType="SettCityDaily">
+		select	sum(a.trade_charge)/100 as "tradeCharge",
+		sum(a.service_charge)/100 as "serviceCharge",
+		sum(a.issue_charge)/100 as "issueCharge",
+		sum(a.bill_charge)/100 as "billCharge",
+		sum(a.center_charge)/100 as "centerCharge",
+		sum(a.sett_charge)/100 as "settCharge",
+		sum(a.times) as "times"
+		from sett_city_daily a
+		<include refid="settCityDailyJoins"/>
+		<where>
+			<if test="beginSettDate != null and endSettDate != null and beginSettDate != '' and endSettDate != ''">
+				AND a.sett_date BETWEEN #{beginSettDate} AND #{endSettDate}
+			</if>
+			<if test="settObject != null and settObject != ''">
+				AND a.sett_object = #{settObject}
+			</if>
+			<if test="settRole != null and settRole != ''">
+				AND a.sett_role LIKE '%' || #{settRole} || '%'
+			</if>
+		</where>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}
+	</select>
+	<select id="findListByArea" resultType="SettCityDaily">
+		SELECT 
+			<include refid="settCityDailyColumns"/>
+		FROM sett_city_daily a
+		<include refid="settCityDailyJoins"/>
+		<where>
+			<if test="beginSettDate != null and endSettDate != null and beginSettDate != '' and endSettDate != ''">
+				AND a.sett_date BETWEEN #{beginSettDate} AND #{endSettDate}
+			</if>
+			<if test="settObject != null and settObject != ''">
+				AND a.sett_object = #{settObject}
+			</if>
+			<if test="settRole != null and settRole != ''">
+				AND a.sett_role LIKE '%' || #{settRole} || '%'
+			</if>
+		</where>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy},a.sett_date desc
+			</when>
+			<otherwise>
+				ORDER BY a.sett_date desc
+			</otherwise>
+		</choose>
+	</select>
 </mapper>

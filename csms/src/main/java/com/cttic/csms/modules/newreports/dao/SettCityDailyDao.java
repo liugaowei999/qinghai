@@ -4,6 +4,7 @@
 package com.cttic.csms.modules.newreports.dao;
 
 import com.thinkgem.jeesite.common.persistence.CrudDao;
+import com.thinkgem.jeesite.common.persistence.Page;
 import com.thinkgem.jeesite.common.persistence.annotation.MyBatisDao;
 
 import java.util.List;
@@ -27,5 +28,6 @@ public interface SettCityDailyDao extends CrudDao<SettCityDaily> {
 
 	List<SettCityDaily> findMonthList(SettCityDaily paramSettCityDaily);
 	SettCityDaily settCityMonthlySum(SettCityDaily paramSettCityDaily);
-	
+	SettCityDaily settCityDailySumByArea(SettCityDaily settCityDaily);
+	List<SettCityDaily> findListByArea(SettCityDaily settCityDaily);
 }
