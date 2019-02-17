@@ -12,13 +12,13 @@
 		a.sett_date AS "settDate",
 		a.sett_object AS "settObject",
 		a.sett_role AS "settRole",
-		a.trade_charge/100 AS "tradeCharge",
-		a.service_charge/100 AS "serviceCharge",
-		a.issue_charge/100 AS "issueCharge",
-		a.bill_charge/100 AS "billCharge",
-		a.center_charge/100 AS "centerCharge",
-		a.times AS "times",
-		a.sett_charge/100 AS "settCharge"
+		sum(a.trade_charge)/100 AS "tradeCharge",
+		sum(a.service_charge)/100 AS "serviceCharge",
+		sum(a.issue_charge)/100 AS "issueCharge",
+		sum(a.bill_charge)/100 AS "billCharge",
+		sum(a.center_charge)/100 AS "centerCharge",
+		sum(a.times) AS "times",
+		sum(a.sett_charge)/100 AS "settCharge"
 	</sql>
 	
 	<sql id="settCityMonthlyColumns">
@@ -44,6 +44,7 @@
 		FROM sett_city_daily a
 		<include refid="settCityDailyJoins"/>
 		WHERE a.id = #{id}
+		group by a.sett_date,a.sett_object,a.sett_role
 	</select>
 	
 	<select id="findList" resultType="SettCityDaily">
@@ -66,9 +67,11 @@
 		${sqlMap.dsf}
 		<choose>
 			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				group by a.sett_date,a.sett_object,a.sett_role
 				ORDER BY ${page.orderBy},a.sett_date desc
 			</when>
 			<otherwise>
+				group by a.sett_date,a.sett_object,a.sett_role
 				ORDER BY a.sett_date desc
 			</otherwise>
 		</choose>
@@ -363,9 +366,11 @@
 		${sqlMap.dsf}
 		<choose>
 			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				group by a.sett_date,a.sett_object,a.sett_role
 				ORDER BY ${page.orderBy},a.sett_date desc
 			</when>
 			<otherwise>
+				group by a.sett_date,a.sett_object,a.sett_role
 				ORDER BY a.sett_date desc
 			</otherwise>
 		</choose>
