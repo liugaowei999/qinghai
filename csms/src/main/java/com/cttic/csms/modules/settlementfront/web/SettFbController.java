@@ -96,26 +96,26 @@ public class SettFbController extends BaseController {
 		List<SettFb> list = page.getList();
 		for (SettFb entity : list){
 			//取机构名称
-			Office recv=officeService.get(entity.getRecvOrgCode());
-			if(recv!=null){
-				entity.setRecvOrgCode(recv.getName());
-			}
-			recv=officeService.get(entity.getBillOrgId()) ;
-			if(recv!=null){
-				entity.setSendOrgId(recv.getName());
-			}
-			recv=officeService.get(entity.getRecvOrgId()) ;
-			if(recv!=null){
-				entity.setRecvOrgId(recv.getName());
-			}
-			recv=officeService.get(entity.getIssueCompanyCode());
-			if(recv!=null){
-				entity.setIssueCompanyCode(recv.getName());
-			}
-			recv=officeService.get(entity.getSendOrgId()) ;
+//			Office recv=officeService.get(entity.getRecvOrgCode());
+//			if(recv!=null){
+//				entity.setRecvOrgCode(recv.getName());
+//			}
+			Office recv=officeService.get(entity.getBillOrgId()) ;
 			if(recv!=null){
 				entity.setSendOrgId(recv.getName());
 			}
+//			recv=officeService.get(entity.getRecvOrgId()) ;
+//			if(recv!=null){
+//				entity.setRecvOrgId(recv.getName());
+//			}
+//			recv=officeService.get(entity.getIssueCompanyCode());
+//			if(recv!=null){
+//				entity.setIssueCompanyCode(recv.getName());
+//			}
+//			recv=officeService.get(entity.getSendOrgId()) ;
+//			if(recv!=null){
+//				entity.setSendOrgId(recv.getName());
+//			}
 		}
 		Map<String,String> orgInfoDropDownMap = bpsSysOrgInfoService.getOrgInfoDropDownMap();
 		model.addAttribute("orgInfoDropDownMap",orgInfoDropDownMap);
