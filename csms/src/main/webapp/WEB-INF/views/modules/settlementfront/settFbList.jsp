@@ -29,12 +29,12 @@
 				<form:input path="settDate" id="settDate" htmlEscape="false"  readonly="readonly" maxlength="8" class="input-medium Wdate"
 					 onclick="WdatePicker({dateFmt:'yyyyMM',maxDate:'%y%M',isShowClear:true});" value="${settFb.settDate}"/>
 			</li>
-			<li>
-				<label>发卡机构：</label><form:select path="issueCompanyCode" class="input-medium">
-					<form:option value="" label="请选择" />
-					<form:options items="${orgInfoDropDownMap}" htmlEscape="false" />
-				</form:select>
-			</li>
+			<%--<li>--%>
+				<%--<label>发卡机构：</label><form:select path="issueCompanyCode" class="input-medium">--%>
+					<%--<form:option value="" label="请选择" />--%>
+					<%--<form:options items="${orgInfoDropDownMap}" htmlEscape="false" />--%>
+				<%--</form:select>--%>
+			<%--</li>--%>
 			<li>
 				<label>收单机构：</label><form:select path="billOrgId" class="input-medium">
 					<form:option value="" label="请选择" />
