@@ -41,6 +41,7 @@
 				<label>发卡机构：</label><form:select path="issueOrgCode" class="input-medium">
 					<form:option value="" label="请选择" />
 					<form:options items="${orgInfoDropDownMap}" htmlEscape="false" />
+				    <form:option value="-1" label="其他" />
 				</form:select>
 			</li>
 			<li>

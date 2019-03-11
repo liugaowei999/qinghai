@@ -38,7 +38,7 @@
 		LEFT JOIN sys_office o ON o.name = a.sett_object  and o.del_flag='0' and o.useable='1'
 	</sql>
     
-	<select id="get" resultType="SettCityDaily">
+	<select id="get" resultType="com.cttic.csms.modules.newreports.entity.SettCityDaily">
 		SELECT 
 			<include refid="settCityDailyColumns"/>
 		FROM sett_city_daily a
@@ -47,7 +47,7 @@
 		group by a.sett_date,a.sett_object,a.sett_role
 	</select>
 	
-	<select id="findList" resultType="SettCityDaily">
+	<select id="findList" resultType="com.cttic.csms.modules.newreports.entity.SettCityDaily">
 		SELECT 
 			<include refid="settCityDailyColumns"/>
 		FROM sett_city_daily a
@@ -77,7 +77,7 @@
 		</choose>
 	</select>
 	
-	<select id="findMonthList" resultType="SettCityDaily">
+	<select id="findMonthList" resultType="com.cttic.csms.modules.newreports.entity.SettCityDaily">
 		SELECT 
 			<include refid="settCityMonthlyColumns"/>
 		FROM sett_city_daily a
@@ -215,7 +215,7 @@
 	</select>
 	
 	
-	<select id="findAllList" resultType="SettCityDaily">
+	<select id="findAllList" resultType="com.cttic.csms.modules.newreports.entity.SettCityDaily">
 		SELECT 
 			<include refid="DISTINCTCityDailyColumns"/>
 		FROM sett_city_daily a
@@ -273,7 +273,7 @@
 
 	<!-- 新增汇总 -->
 
-	<select id="settCityDailySum" resultType="SettCityDaily">
+	<select id="settCityDailySum" resultType="com.cttic.csms.modules.newreports.entity.SettCityDaily">
 	select	sum(a.trade_charge)/100 as "tradeCharge",
 	sum(a.service_charge)/100 as "serviceCharge",
 	sum(a.issue_charge)/100 as "issueCharge",
@@ -298,7 +298,7 @@
 	${sqlMap.dsf}
 	</select>
 	
-	<select id="settCityMonthlySum" resultType="SettCityDaily">
+	<select id="settCityMonthlySum" resultType="com.cttic.csms.modules.newreports.entity.SettCityDaily">
 	select	sum(a.trade_charge)/100 as "tradeCharge",
 	sum(a.service_charge)/100 as "serviceCharge",
 	sum(a.issue_charge)/100 as "issueCharge",
@@ -322,7 +322,7 @@
 	<!-- 数据范围过滤 -->
 	${sqlMap.dsf}
 	</select>
-	<select id="settCityDailySumByArea" resultType="SettCityDaily">
+	<select id="settCityDailySumByArea" resultType="com.cttic.csms.modules.newreports.entity.SettCityDaily">
 		select	sum(a.trade_charge)/100 as "tradeCharge",
 		sum(a.service_charge)/100 as "serviceCharge",
 		sum(a.issue_charge)/100 as "issueCharge",
@@ -346,7 +346,7 @@
 		<!-- 数据范围过滤 -->
 		${sqlMap.dsf}
 	</select>
-	<select id="findListByArea" resultType="SettCityDaily">
+	<select id="findListByArea" resultType="com.cttic.csms.modules.newreports.entity.SettCityDaily">
 		SELECT 
 			<include refid="settCityDailyColumns"/>
 		FROM sett_city_daily a

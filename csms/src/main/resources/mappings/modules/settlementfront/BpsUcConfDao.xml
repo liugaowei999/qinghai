@@ -50,7 +50,7 @@
 				AND a.issue_org_code = #{issueOrgCode}
 			</if>
 			<if test="cardNo != null and cardNo != ''">
-				AND a.card_no = #{cardNo}
+				AND a.card_no  like '%'||#{cardNo}||'%'
 			</if>
 			<if test="dealTime != null and dealTime != ''">
 				AND a.deal_time = #{dealTime}
