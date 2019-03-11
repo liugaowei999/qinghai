@@ -30,17 +30,17 @@
 					 onclick="WdatePicker({dateFmt:'yyyyMM',maxDate:'%y%M',isShowClear:true});" value="${settCl.settDate}"/>
 			</li>
 			<li>
-				<label>发卡机构：</label><form:select path="recvOrgCode" class="input-medium">
+				<label>发卡机构：</label><form:select path="issueCompanyCode" class="input-medium">
 					<form:option value="" label="请选择" />
 					<form:options items="${orgInfoDropDownMap}" htmlEscape="false" />
 				</form:select>
 			</li>
-			<li>
+			<%--<li>
 				<label>收单机构：</label><form:select path="billOrgCode" class="input-medium">
 					<form:option value="" label="请选择" />
 					<form:options items="${orgInfoDropDownMap}" htmlEscape="false" />
 				</form:select>
-			</li>
+			</li>--%>
 			<li class="clearfix"></li>
 			<li>
 				<label>卡号：</label><form:input path="cardNo" htmlEscape="false" maxlength="20" class="input-xlarge "/>

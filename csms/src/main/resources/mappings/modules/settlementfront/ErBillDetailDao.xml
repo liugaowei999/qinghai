@@ -129,9 +129,17 @@
 			<if test="billOrgCode != null and billOrgCode != ''">
 				AND substr(send_org_id,2,7)= #{billOrgCode}
 			</if>
-			<if test="issueOrgCode != null and issueOrgCode != ''">
-				AND substr(issue_org_code,2,7)= #{issueOrgCode}
-			</if>
+			<choose>
+				<when test="issueOrgCode != null and issueOrgCode != '-1'">
+					AND substr(issue_org_code,2,7)= #{issueOrgCode}
+				</when>
+				<when test="issueOrgCode != null and issueOrgCode == '-1'">
+					AND substr(issue_org_code,2,7) not in (select org_code from bps_sys_org_info)
+				</when>
+				<otherwise>
+
+				</otherwise>
+			</choose>
 		</where>
 		<!-- 数据范围过滤 -->
 		${sqlMap.dsf} 
@@ -166,9 +174,17 @@
 			<if test="billOrgCode != null and billOrgCode != ''">
 				AND substr(bill_org_id,2,7)= #{billOrgCode}
 			</if>
-			<if test="issueOrgCode != null and issueOrgCode != ''">
-				AND substr(issue_company_code,2,7)= #{issueOrgCode}
-			</if>
+			<choose>
+				<when test="issueOrgCode != null and issueOrgCode != '-1'">
+					AND substr(issue_company_code,2,7)= #{issueOrgCode}
+				</when>
+				<when test="issueOrgCode != null and issueOrgCode == '-1'">
+					AND substr(issue_company_code,2,7) not in (select org_code from bps_sys_org_info)
+				</when>
+				<otherwise>
+
+				</otherwise>
+			</choose>
 		</where>
 		<!-- 数据范围过滤 -->
 		${sqlMap.dsf} 

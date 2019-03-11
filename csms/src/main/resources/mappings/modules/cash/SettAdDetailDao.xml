@@ -79,13 +79,13 @@
 			</if>
 			
 			<if test="issueOrgCode != null and issueOrgCode != ''">
-				AND substr(issue_org_code,1,7)= #{issueOrgCode}
+				AND substr(issue_org_code,2,7)= #{issueOrgCode}
 			</if>
 			<if test="billOrgCode != null and billOrgCode != ''">
-				AND substr(bill_org_code,1,7)= #{billOrgCode}
+				AND substr(bill_org_code,2,7)= #{billOrgCode}
 			</if>
 			<if test="cardNo != null and cardNo != ''">
-				AND card_no= #{cardNo}
+				AND card_no  like '%'||#{cardNo}||'%'
 			</if>
 		</where>
 		<!-- 数据范围过滤 -->

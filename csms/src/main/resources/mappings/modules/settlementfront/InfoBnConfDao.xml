@@ -34,7 +34,7 @@
 		<include refid="infoBnConfJoins"/>
 		<where>
 			<if test="downDate != null and downDate != ''">
-				AND a.down_date = #{downDate}
+				AND  #{downDate}= '20'||substr(a.down_date,0,6)
 			</if>
 			 <if test="issueOrgCode != null and issueOrgCode != ''">
 				AND a.issue_org_code = #{issueOrgCode}

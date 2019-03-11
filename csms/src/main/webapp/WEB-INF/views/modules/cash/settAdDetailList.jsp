@@ -41,12 +41,12 @@
 				</form:select>
 			</li>
 			<li class="clearfix"></li>
-			<li>
+			<%--<li>
 				<label>收单机构：</label><form:select path="billOrgCode" class="input-medium">
 					<form:option value="" label="请选择" />
 					<form:options items="${orgInfoDropDownMap}" htmlEscape="false" />
 				</form:select>
-			</li>
+			</li>--%>
 			
 			<li>
 				<label> &nbsp;&nbsp;卡&nbsp;号：</label><form:input path="cardNo" htmlEscape="false" maxlength="20" class="input-xlarge "/>

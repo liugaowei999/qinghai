@@ -30,11 +30,7 @@
 				<form:input path="downDate" id="downDate" htmlEscape="false"  readonly="readonly" maxlength="8" class="input-medium Wdate"
 					 onclick="WdatePicker({dateFmt:'yyyyMMdd',maxDate:'%y%M%d',isShowClear:true});" value="${bpsBnConf.downDate}"/>
 			</li>
-			<li><label>发卡机构：</label>
-				<%-- <form:input path="issueOrgCode" htmlEscape="false" maxlength="11" class="input-medium"/> --%>
-				<sys:treeselect id="company" name="company.id" value="${bpsBnConf.company.id}" labelName="company.name" labelValue="${bpsBnConf.company.name}"
-					title="部门" url="/sys/office/treeData?type=1" cssClass="input-small" allowClear="true" notAllowSelectParent="false"/>
-			</li>
+
 			<li><label>卡BIN：</label>
 				<form:input path="cardBinNo" htmlEscape="false" maxlength="10" class="input-medium"/>
 			</li>

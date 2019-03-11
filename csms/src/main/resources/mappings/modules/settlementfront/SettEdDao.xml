@@ -61,13 +61,13 @@
 				AND (o.id = #{company.id} OR o.parent_ids LIKE '%,'||#{company.id}||',%')
 			</if>
 			<if test="issueOrgCode != null and issueOrgCode != ''">
-				AND substr(issue_org_code,1,7)= #{issueOrgCode}
+				AND substr(issue_org_code,2,7)= #{issueOrgCode}
 			</if>
 			<if test="billOrgId != null and billOrgId != ''">
-				AND substr(bill_org_id,1,7)= #{billOrgId}
+				AND substr(bill_org_id,2,7)= #{billOrgId}
 			</if>
 			<if test="cardNo != null and cardNo != ''">
-				AND card_no= #{cardNo}
+				AND card_no  like '%'||#{cardNo}||'%'
 			</if>
 		</where>
 		<!-- 数据范围过滤 -->
