@@ -43,7 +43,7 @@
 				AND (o.id = #{company.id} OR o.parent_ids LIKE '%,'||#{company.id}||',%')
 			</if>
 			<if test="cardBinNo != null and cardBinNo != ''">
-				AND a.card_bin_no = #{cardBinNo}
+				AND a.card_bin_no like  '%'||#{cardBinNo}||'%'
 			</if>
 			<if test="dealTime != null and dealTime != ''">
 				AND a.deal_time = #{dealTime}
