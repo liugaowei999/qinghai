@@ -130,10 +130,10 @@
 				AND substr(send_org_id,2,7)= #{billOrgCode}
 			</if>
 			<choose>
-				<when test="issueOrgCode != null and issueOrgCode != '-1'">
+				<when test="issueOrgCode != null and issueOrgCode != '' and issueOrgCode != '-1'">
 					AND substr(issue_org_code,2,7)= #{issueOrgCode}
 				</when>
-				<when test="issueOrgCode != null and issueOrgCode == '-1'">
+				<when test="issueOrgCode == '-1'">
 					AND substr(issue_org_code,2,7) not in (select org_code from bps_sys_org_info)
 				</when>
 				<otherwise>
@@ -175,10 +175,10 @@
 				AND substr(bill_org_id,2,7)= #{billOrgCode}
 			</if>
 			<choose>
-				<when test="issueOrgCode != null and issueOrgCode != '-1'">
+				<when test="issueOrgCode != null and issueOrgCode != '' and issueOrgCode != '-1'">
 					AND substr(issue_company_code,2,7)= #{issueOrgCode}
 				</when>
-				<when test="issueOrgCode != null and issueOrgCode == '-1'">
+				<when test="issueOrgCode == '-1'">
 					AND substr(issue_company_code,2,7) not in (select org_code from bps_sys_org_info)
 				</when>
 				<otherwise>

@@ -35,7 +35,7 @@
 				AND a.file_name like '%'||#{fileName}||'%'
 			</if>
 			<if test="errCode != null and errCode != ''">
-				AND a.err_code = #{errCode}
+				AND a.err_code like '%'||#{errCode}||'%'
 			</if>
 			<if test="errInfo != null and errInfo != ''">
 				AND a.err_info = #{errInfo}

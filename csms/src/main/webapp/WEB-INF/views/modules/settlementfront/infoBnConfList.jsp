@@ -30,12 +30,12 @@
 				<form:input path="downDate" id="downDate" htmlEscape="false"  readonly="readonly" maxlength="8" class="input-medium Wdate"
 					 onclick="WdatePicker({dateFmt:'yyyyMMdd',maxDate:'%y%M%d',isShowClear:true});" value="${infoBnConf.downDate}"/>
 			</li>
-			<li>
+			<%--<li>
 				<label>发卡机构：</label><form:select path="issueOrgCode" class="input-medium">
 					<form:option value="" label="请选择" />
 					<form:options items="${orgInfoDropDownMap}" htmlEscape="false" />
 				</form:select>
-			</li>
+			</li>--%>
 			<li><label>卡BIN：</label>
 				<form:input path="cardBinNo" htmlEscape="false" maxlength="10" class="input-medium"/>
 			</li>
@@ -55,7 +55,7 @@
 			<tr>
 				<th>下发日期</th>
 				<th>文件名称</th>
-				<th>发卡机构代码</th>
+				<%--<th>发卡机构代码</th>--%>
 				<th>卡BIN</th>
 				<th>处理时间</th>
 				<th>入库时间</th>
@@ -72,9 +72,9 @@
 				<td>
 					${infoBnConf.fileName}
 				</td>
-				<td>
+				<%--<td>
 					${infoBnConf.company.name}
-				</td>
+				</td>--%>
 				<td>
 					${infoBnConf.cardBinNo}
 				</td>
